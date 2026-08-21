@@ -1,0 +1,21 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+env/
+venv/
+
+# Database files
+*.db
+*.sqlite3
+instance/
+
+# Uploads directory contents (except .gitkeep)
+uploads/*
+!uploads/.gitkeep
+app/uploads/*
+!app/uploads/.gitkeep
