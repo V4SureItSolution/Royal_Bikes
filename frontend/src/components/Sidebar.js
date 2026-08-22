@@ -11,7 +11,10 @@ import {
   Truck, 
   ChevronRight, 
   ChevronDown,
-  User
+  User,
+  Tag,
+  FileSpreadsheet,
+  BookOpen
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
@@ -118,16 +121,70 @@ export const Sidebar = () => {
           </div>
         </NavLink>
 
+        {/* Delivery-Challan Submenu Accordion */}
+        <div className="sidebar-accordion">
+          <NavLink 
+            to="/delivery-challan" 
+            className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
+          >
+            <div className="sidebar-nav-item-left">
+              <Truck size={16} />
+              <span>Delivery-Challan</span>
+            </div>
+            <ChevronDown size={14} />
+          </NavLink>
+          <div style={{ paddingLeft: '2.2rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.2rem', marginBottom: '0.5rem' }}>
+            <NavLink 
+              to="/delivery-challan/entry" 
+              className={({ isActive }) => `sidebar-subnav-item ${isActive ? 'active' : ''}`}
+              style={{ fontSize: '0.84rem', color: '#94a3b8', padding: '0.35rem 0.75rem', borderRadius: '4px', textDecoration: 'none' }}
+            >
+              Entry
+            </NavLink>
+            <NavLink 
+              to="/delivery-challan/view" 
+              className={({ isActive }) => `sidebar-subnav-item ${isActive ? 'active' : ''}`}
+              style={{ fontSize: '0.84rem', color: '#94a3b8', padding: '0.35rem 0.75rem', borderRadius: '4px', textDecoration: 'none' }}
+            >
+              View
+            </NavLink>
+          </div>
+        </div>
+
+        {/* REPORTS Section */}
+        <div className="sidebar-section-title">Reports</div>
+
         <NavLink 
-          to="/delivery-challan" 
+          to="/current-stock-report" 
           className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
         >
           <div className="sidebar-nav-item-left">
-            <Truck size={16} />
-            <span>Delivery-Challan</span>
+            <Tag size={16} />
+            <span>Current Stock Report</span>
           </div>
-          <ChevronRight size={14} />
         </NavLink>
+
+        <div className="sidebar-accordion">
+          <NavLink 
+            to="/mis-report" 
+            className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
+          >
+            <div className="sidebar-nav-item-left">
+              <FileSpreadsheet size={16} />
+              <span>MIS REPORT</span>
+            </div>
+            <ChevronDown size={14} />
+          </NavLink>
+          <div style={{ paddingLeft: '2.2rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.2rem', marginBottom: '0.5rem' }}>
+            <NavLink 
+              to="/day-book" 
+              className={({ isActive }) => `sidebar-subnav-item ${isActive ? 'active' : ''}`}
+              style={{ fontSize: '0.84rem', color: '#94a3b8', padding: '0.35rem 0.75rem', borderRadius: '4px', textDecoration: 'none' }}
+            >
+              Day Book
+            </NavLink>
+          </div>
+        </div>
       </div>
 
       {/* User Profile Footer */}

@@ -1,5 +1,5 @@
 from datetime import datetime
-from config import db, bcrypt
+from app.extensions import db, bcrypt
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -12,6 +12,9 @@ class User(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def set_password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')

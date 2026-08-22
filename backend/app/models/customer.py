@@ -1,5 +1,5 @@
 from datetime import datetime
-from config import db
+from app.extensions import db
 
 class Customer(db.Model):
     __tablename__ = 'customers'
@@ -13,6 +13,9 @@ class Customer(db.Model):
     status = db.Column(db.String(20), default='active')  # 'active', 'lead', 'inactive'
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def to_dict(self):
         return {

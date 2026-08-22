@@ -18,5 +18,25 @@ export const API_ENDPOINTS = {
   USERS: {
     BASE: `${API_BASE_URL}/users`,
     BY_ID: (id) => `${API_BASE_URL}/users/${id}`
+  },
+  RECEIPTS: {
+    BASE: `${API_BASE_URL}/receipts`,
+    BY_ID: (id) => `${API_BASE_URL}/receipts/${id}`
+  },
+  VOUCHERS: {
+    BASE: `${API_BASE_URL}/vouchers`,
+    BY_ID: (id) => `${API_BASE_URL}/vouchers/${id}`
+  },
+  RTN_PAYMENTS: {
+    BASE: `${API_BASE_URL}/rtn-payments`,
+    BY_ID: (id) => `${API_BASE_URL}/rtn-payments/${id}`
+  },
+  DELIVERY_CHALLANS: {
+    BASE: `${API_BASE_URL}/delivery-challans`,
+    BY_ID: (id) => `${API_BASE_URL}/delivery-challans/${id}`
+  },
+  REPORTS: {
+    CURRENT_STOCK: `${API_BASE_URL}/reports/current-stock`,
+    DAY_BOOK: `${API_BASE_URL}/reports/day-book`
   }
 };

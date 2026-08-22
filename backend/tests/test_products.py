@@ -1,6 +1,6 @@
 import unittest
 from app import create_app
-from config import db
+from app.extensions import db
 
 class TestProducts(unittest.TestCase):
     def setUp(self):

@@ -7,18 +7,29 @@ if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
 from flask import Flask, jsonify
-from config import config, db, jwt, bcrypt, cors, migrate
+from config import Config
+from app.extensions import db, jwt, bcrypt, cors, migrate
 from app.routes.auth_routes import auth_bp
 from app.routes.user_routes import user_bp
 from app.routes.product_routes import product_bp
 from app.routes.customer_routes import customer_bp
+from app.routes.receipt_routes import receipt_bp
+from app.routes.voucher_routes import voucher_bp
+from app.routes.rtn_payment_routes import rtn_payment_bp
+from app.routes.delivery_challan_routes import delivery_challan_bp
+from app.routes.report_routes import report_bp
 
 def create_app(config_name=None):
     if config_name is None:
         config_name = os.getenv('FLASK_ENV', 'development')
 
     app = Flask(__name__)
-    app.config.from_object(config.get(config_name, config['default']))
+    app.config.from_object(Config)
+
+    if config_name == 'testing':
+        app.config['TESTING'] = True
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        app.config['JWT_SECRET_KEY'] = 'test-jwt-secret-key'
 
     # Initialize Flask Extensions from root config
     db.init_app(app)
@@ -32,6 +43,11 @@ def create_app(config_name=None):
     app.register_blueprint(user_bp)
     app.register_blueprint(product_bp)
     app.register_blueprint(customer_bp)
+    app.register_blueprint(receipt_bp)
+    app.register_blueprint(voucher_bp)
+    app.register_blueprint(rtn_payment_bp)
+    app.register_blueprint(delivery_challan_bp)
+    app.register_blueprint(report_bp)
 
     # Global Error Handlers
     @app.errorhandler(404)
@@ -120,5 +136,73 @@ def seed_database():
             )
         ]
         db.session.bulk_save_objects(sample_customers)
+
+    # Seed Sample Receipt
+    from app.models.receipt import Receipt
+    if Receipt.query.count() == 0:
+        sample_receipt = Receipt(
+            receipt_no='04698',
+            account_code='2917',
+            customer_name='KEERTHANA',
+            receipt_date='12-08-2026',
+            amount=4000.0,
+            payment_type='CASH',
+            note='-',
+            status='active'
+        )
+        db.session.add(sample_receipt)
+
+    # Seed Sample Voucher Entry (matching screenshot)
+    from app.models.voucher import Voucher
+    if Voucher.query.count() == 0:
+        sample_voucher = Voucher(
+            voucher_no='04889',
+            account_code='2852',
+            customer_name='VP GI BOOMIKA',
+            voucher_date='12-08-2026',
+            amount=5741.0,
+            payment_type='CASH',
+            note='-',
+            status='active'
+        )
+        db.session.add(sample_voucher)
+
+    # Seed Sample RTN Payment Entry
+    from app.models.rtn_payment import RtnPayment
+    if RtnPayment.query.count() == 0:
+        sample_rtn = RtnPayment(
+            voucher_no='05102',
+            account_code='3104',
+            customer_name='SURESH KUMAR',
+            rtn_date='12-08-2026',
+            amount=2500.0,
+            payment_type='CASH',
+            note='-',
+            status='active'
+        )
+        db.session.add(sample_rtn)
+
+    # Seed Sample Delivery Challan
+    from app.models.delivery_challan import DeliveryChallan
+    if DeliveryChallan.query.count() == 0:
+        sample_dc = DeliveryChallan(
+            dc_number='DC-2026-001',
+            order_date='12-08-2026',
+            expected_shipment_date='12-08-2026',
+            sales_type='GST',
+            reference_no='REF-98120',
+            customer_name='BALAJI PANNER SELVAM',
+            customer_phone='9941220484',
+            customer_address='CHENNAI',
+            product_name='Royal Enfield Classic 350',
+            quantity=1,
+            engine_number='ENG-350-7712',
+            chassis_number='CHS-RE-9941',
+            color='Stealth Black',
+            delivery_terms='Immediate delivery on payment confirmation.',
+            notes='Sample Delivery Challan record.',
+            status='Delivered'
+        )
+        db.session.add(sample_dc)
 
     db.session.commit()

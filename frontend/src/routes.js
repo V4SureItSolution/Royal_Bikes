@@ -2,6 +2,12 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { DashboardLayout } from './layouts/DashboardLayout';
 import { DirectStock } from './pages/DirectStock';
+import { Receipt } from './pages/Receipt';
+import { VoucherEntry } from './pages/VoucherEntry';
+import { RtnPayment } from './pages/RtnPayment';
+import { DeliveryChallan } from './pages/DeliveryChallan';
+import { CurrentStockReport } from './pages/CurrentStockReport';
+import { DayBookReport } from './pages/DayBookReport';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { AuthLayout } from './layouts/AuthLayout';
@@ -28,15 +34,20 @@ export const AppRoutes = () => {
 
       {/* App Main Layout Routes */}
       <Route element={<DashboardLayout />}>
-        <Route path="/" element={<Navigate to="/direct-stock" replace />} />
+        <Route path="/" element={<Navigate to="/delivery-challan/entry" replace />} />
         <Route path="/direct-stock" element={<DirectStock />} />
         <Route path="/analytics" element={<ModuleView title="Analytics Dashboard" />} />
         <Route path="/booking-order" element={<ModuleView title="Booking Order" />} />
-        <Route path="/receipt" element={<ModuleView title="Receipt" />} />
-        <Route path="/voucher-entry" element={<ModuleView title="Voucher Entry" />} />
-        <Route path="/rtn-payment" element={<ModuleView title="RTN Payment" />} />
-        <Route path="/delivery-challan" element={<ModuleView title="Delivery Challan" />} />
-        <Route path="*" element={<Navigate to="/direct-stock" replace />} />
+        <Route path="/receipt" element={<Receipt />} />
+        <Route path="/voucher-entry" element={<VoucherEntry />} />
+        <Route path="/rtn-payment" element={<RtnPayment />} />
+        <Route path="/delivery-challan" element={<DeliveryChallan />} />
+        <Route path="/delivery-challan/entry" element={<DeliveryChallan />} />
+        <Route path="/delivery-challan/view" element={<DeliveryChallan />} />
+        <Route path="/current-stock-report" element={<CurrentStockReport />} />
+        <Route path="/mis-report" element={<DayBookReport />} />
+        <Route path="/day-book" element={<DayBookReport />} />
+        <Route path="*" element={<Navigate to="/delivery-challan/entry" replace />} />
       </Route>
     </Routes>
   );

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
-from config import db
+from app.extensions import db
 from app.models.customer import Customer
 
 customer_bp = Blueprint('customers', __name__, url_prefix='/api/customers')
