@@ -64,11 +64,11 @@ export const CustomerSearchSelect = ({
         style={{ cursor: 'pointer' }}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <legend className="outlined-legend">Search from Customerdetails</legend>
+        <legend className="outlined-legend">Customer Name</legend>
         <input
           type="text"
           value={selectedCustomerName}
-          placeholder="Search or Select Customer..."
+          placeholder=""
           readOnly
           className="outlined-input"
           style={{ cursor: 'pointer' }}

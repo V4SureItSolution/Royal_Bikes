@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Ticket as TicketIcon, 
+  FileText, 
   Calendar, 
   Search, 
   Printer, 
@@ -33,10 +33,25 @@ const numberToWords = (num) => {
   return convert(n) + ' only';
 };
 
+// Date Formatter: YYYY-MM-DD -> DD-MM-YYYY
+const formatToDDMMYYYY = (dateStr) => {
+  if (!dateStr) return '';
+  if (dateStr.includes('-') && dateStr.split('-')[0].length === 4) {
+    const [y, m, d] = dateStr.split('-');
+    return `${d}-${m}-${y}`;
+  }
+  return dateStr;
+};
+
 export const VoucherEntry = () => {
   const [activeTab, setActiveTab] = useState('entry'); // 'entry' | 'view'
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+
+  // Date picker refs
+  const receiptDateRef = useRef(null);
+  const fromDateRef = useRef(null);
+  const toDateRef = useRef(null);
 
   // Initial Sample Data (matching screenshot)
   const [vouchers, setVouchers] = useState([
@@ -104,6 +119,28 @@ export const VoucherEntry = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleDatePick = (field, e) => {
+    const formatted = formatToDDMMYYYY(e.target.value);
+    if (field === 'voucher_date') {
+      setFormData((prev) => ({ ...prev, voucher_date: formatted }));
+    } else if (field === 'fromDate') {
+      setFilters((prev) => ({ ...prev, fromDate: formatted }));
+    } else if (field === 'toDate') {
+      setFilters((prev) => ({ ...prev, toDate: formatted }));
+    }
+  };
+
+  const openDatePicker = (ref) => {
+    if (ref.current) {
+      if (typeof ref.current.showPicker === 'function') {
+        ref.current.showPicker();
+      } else {
+        ref.current.focus();
+        ref.current.click();
+      }
+    }
   };
 
   const handleClear = () => {
@@ -189,7 +226,7 @@ export const VoucherEntry = () => {
       {/* Header Title Section */}
       <div className="page-title-header">
         <div className="page-title-icon">
-          <TicketIcon size={22} />
+          <FileText size={20} />
         </div>
         <div className="page-title-text">Voucher-Entry</div>
       </div>
@@ -230,8 +267,8 @@ export const VoucherEntry = () => {
 
       {/* TAB 1: ENTRY FORM */}
       {activeTab === 'entry' && (
-        <form onSubmit={handleSubmitEntry} style={{ maxWidth: '750px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <form onSubmit={handleSubmitEntry} style={{ maxWidth: '680px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             
             {/* Account Code */}
             <fieldset className="outlined-fieldset">
@@ -245,7 +282,7 @@ export const VoucherEntry = () => {
               />
             </fieldset>
 
-            {/* Customer Name Lookup with ( Add New Customer ) */}
+            {/* Customer Name Lookup */}
             <CustomerSearchSelect
               selectedCustomerName={formData.customer_name}
               onSelectCustomer={(cust) => setFormData((prev) => ({ ...prev, customer_name: cust.name }))}
@@ -255,7 +292,11 @@ export const VoucherEntry = () => {
 
             {/* Receipt Date */}
             <div>
-              <fieldset className="outlined-fieldset" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <fieldset 
+                className="outlined-fieldset" 
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
+                onClick={() => openDatePicker(receiptDateRef)}
+              >
                 <legend className="outlined-legend">Receipt Date</legend>
                 <input
                   type="text"
@@ -263,8 +304,15 @@ export const VoucherEntry = () => {
                   value={formData.voucher_date}
                   onChange={handleInputChange}
                   className="outlined-input"
+                  style={{ cursor: 'pointer' }}
                 />
-                <Calendar size={18} color="#64748b" style={{ cursor: 'pointer' }} />
+                <Calendar size={18} color="#475569" style={{ cursor: 'pointer' }} />
+                <input 
+                  type="date" 
+                  ref={receiptDateRef} 
+                  onChange={(e) => handleDatePick('voucher_date', e)} 
+                  style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }} 
+                />
               </fieldset>
               <div className="field-subtext">Click on the input or the datepicker icon</div>
             </div>
@@ -292,24 +340,26 @@ export const VoucherEntry = () => {
                 onChange={handleInputChange}
                 className="outlined-select"
                 style={{ cursor: 'pointer' }}
+                required
               >
                 <option value="" disabled hidden>Select Payment Type</option>
                 <option value="CASH">CASH</option>
                 <option value="CARD">CARD</option>
                 <option value="UPI">UPI</option>
                 <option value="CHEQUE">CHEQUE</option>
+                <option value="ONLINE">ONLINE</option>
               </select>
             </fieldset>
 
             {/* Note */}
             <fieldset className="outlined-fieldset">
               <legend className="outlined-legend">Note</legend>
-              <textarea
+              <input
+                type="text"
                 name="note"
                 value={formData.note}
                 onChange={handleInputChange}
-                className="outlined-textarea"
-                rows={3}
+                className="outlined-input"
               />
             </fieldset>
 
@@ -333,29 +383,51 @@ export const VoucherEntry = () => {
           {/* Top Filter Controls */}
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: '220px' }}>
-              <fieldset className="outlined-fieldset" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <fieldset 
+                className="outlined-fieldset" 
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
+                onClick={() => openDatePicker(fromDateRef)}
+              >
                 <legend className="outlined-legend">FromDate</legend>
                 <input
                   type="text"
                   value={filters.fromDate}
                   onChange={(e) => setFilters({ ...filters, fromDate: e.target.value })}
                   className="outlined-input"
+                  style={{ cursor: 'pointer' }}
                 />
-                <Calendar size={18} color="#64748b" />
+                <Calendar size={18} color="#475569" />
+                <input 
+                  type="date" 
+                  ref={fromDateRef} 
+                  onChange={(e) => handleDatePick('fromDate', e)} 
+                  style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }} 
+                />
               </fieldset>
               <div className="field-subtext">Click on the input or the datepicker icon</div>
             </div>
 
             <div style={{ flex: 1, minWidth: '220px' }}>
-              <fieldset className="outlined-fieldset" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <fieldset 
+                className="outlined-fieldset" 
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
+                onClick={() => openDatePicker(toDateRef)}
+              >
                 <legend className="outlined-legend">ToDate</legend>
                 <input
                   type="text"
                   value={filters.toDate}
                   onChange={(e) => setFilters({ ...filters, toDate: e.target.value })}
                   className="outlined-input"
+                  style={{ cursor: 'pointer' }}
                 />
-                <Calendar size={18} color="#64748b" />
+                <Calendar size={18} color="#475569" />
+                <input 
+                  type="date" 
+                  ref={toDateRef} 
+                  onChange={(e) => handleDatePick('toDate', e)} 
+                  style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }} 
+                />
               </fieldset>
               <div className="field-subtext">Click on the input or the datepicker icon</div>
             </div>
