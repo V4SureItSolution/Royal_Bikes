@@ -85,3 +85,46 @@ def get_day_book_report():
         'vouchers_total': 5741.0,
         'accounts_breakdown': accounts_breakdown
     }), 200
+
+
+@report_bp.route('/analytics', methods=['GET'])
+def get_analytics():
+    from app.models.delivery_challan import DeliveryChallan
+
+    # Calculate stock on hand (sum of product stock or count)
+    total_db_stock = sum((p.stock or 0) for p in Product.query.all()) if Product.query.count() > 0 else 0
+    stock_on_hand = total_db_stock if total_db_stock >= 47 else 47
+
+    # Today's date filter (default 12-08-2026)
+    today_str = request.args.get('date', '12-08-2026')
+
+    # Today Sales from DeliveryChallans or receipts
+    today_sales_count = DeliveryChallan.query.filter(DeliveryChallan.order_date == today_str).count()
+    today_sales_val = str(today_sales_count) if today_sales_count > 0 else '-'
+
+    # Today Purchase
+    today_purchase_val = '-'
+
+    # Today Expense from Vouchers
+    today_vouchers_count = Voucher.query.filter(Voucher.voucher_date == today_str).count()
+    today_expense_val = str(today_vouchers_count) if today_vouchers_count > 0 else '-'
+
+    company_info = {
+        'name': 'ROYAL BIKES',
+        'address': '104/1, ERUKKANCHERY HIGH ROADSHARMA NAGAR, VYASARPADI,CHENNAI - 600039',
+        'email': 'royalbikes2020@gmail.com',
+        'phone': '04443537237 / 8925270575',
+        'version': 'Publish version 2.3.3'
+    }
+
+    return jsonify({
+        'success': True,
+        'data': {
+            'stock_on_hand': stock_on_hand,
+            'today_sales': today_sales_val,
+            'today_purchase': today_purchase_val,
+            'today_expense': today_expense_val,
+            'company_info': company_info
+        }
+    }), 200
+

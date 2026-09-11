@@ -533,10 +533,10 @@ export const Receipt = () => {
               {/* Exact Voucher Template matching User's Image */}
               <div className="printable-receipt-container">
                 {/* Header Grid */}
-                <div className="receipt-header-grid">
+                <div className="receipt-header-grid" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   {/* Logo Wrap */}
-                  <div className="receipt-logo-wrap">
-                    <svg width="60" height="34" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <div className="receipt-logo-wrap" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                    <svg width="68" height="38" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="5.5" cy="17.5" r="3.5"/>
                       <circle cx="18.5" cy="17.5" r="3.5"/>
                       <path d="M15 6h2.57a2 2 0 0 1 1.96 1.62l1.04 5.22"/>
@@ -545,26 +545,27 @@ export const Receipt = () => {
                     </svg>
                     <div style={{
                       fontWeight: '900',
-                      fontSize: '1rem',
-                      letterSpacing: '0.08em',
+                      fontSize: '1.1rem',
+                      letterSpacing: '0.06em',
                       fontFamily: "'Arial Black', sans-serif",
                       borderTop: '2px solid #000000',
                       borderBottom: '2px solid #000000',
                       padding: '1px 0',
-                      marginTop: '2px',
-                      width: '120px'
+                      marginTop: '3px',
+                      width: '130px',
+                      lineHeight: 1.1
                     }}>
                       ROYAL
-                      <div style={{ fontSize: '0.8rem', letterSpacing: '0.22em' }}>BIKES</div>
+                      <div style={{ fontSize: '0.82rem', letterSpacing: '0.22em' }}>— BIKES —</div>
                     </div>
                   </div>
 
                   {/* Company Info */}
-                  <div className="receipt-company-info">
-                    <h2 style={{ fontSize: '1.45rem', fontWeight: 'bold', margin: '0 0 0.15rem 0', textTransform: 'uppercase', fontFamily: "'Times New Roman', serif" }}>
+                  <div className="receipt-company-info" style={{ textAlign: 'left', marginLeft: '1.5rem' }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: '0 0 0.2rem 0', textTransform: 'uppercase', fontFamily: "'Times New Roman', serif", letterSpacing: '0.02em' }}>
                       ROYAL BIKES
                     </h2>
-                    <div style={{ fontSize: '0.78rem', color: '#000000', lineHeight: 1.35, fontFamily: "'Times New Roman', serif" }}>
+                    <div style={{ fontSize: '0.82rem', color: '#000000', lineHeight: 1.35, fontFamily: "'Times New Roman', serif" }}>
                       104/1, ERUKKANCHERY HIGH ROAD,SHARMA NAGAR, VYASARPADI<br />
                       CHENNAI-600039 (ANNAI DIGITAL OPPOSITE)<br />
                       E-mail : royalbikes2020@gmail.com
@@ -573,49 +574,49 @@ export const Receipt = () => {
                 </div>
 
                 {/* Contact Badges Row */}
-                <div className="contact-pills-row">
-                  <div className="contact-pill-item">
-                    <div className="contact-pill-label">LAND LINE</div>
-                    <div className="contact-pill-value">04443537237</div>
+                <div className="contact-pills-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', marginTop: '1.25rem' }}>
+                  <div className="contact-pill-item" style={{ border: '1px solid #777777', borderRadius: '18px', padding: '0.25rem 0.5rem', textAlign: 'center' }}>
+                    <div className="contact-pill-label" style={{ fontSize: '0.68rem', color: '#444444', fontWeight: 'bold' }}>LAND LINE</div>
+                    <div className="contact-pill-value" style={{ fontSize: '0.88rem', fontWeight: 'bold', color: '#000000' }}>04443537237</div>
                   </div>
-                  <div className="contact-pill-item">
-                    <div className="contact-pill-label">RTO</div>
-                    <div className="contact-pill-value">8925270575</div>
+                  <div className="contact-pill-item" style={{ border: '1px solid #777777', borderRadius: '18px', padding: '0.25rem 0.5rem', textAlign: 'center' }}>
+                    <div className="contact-pill-label" style={{ fontSize: '0.68rem', color: '#444444', fontWeight: 'bold' }}>RTO</div>
+                    <div className="contact-pill-value" style={{ fontSize: '0.88rem', fontWeight: 'bold', color: '#000000' }}>8925270575</div>
                   </div>
-                  <div className="contact-pill-item">
-                    <div className="contact-pill-label">SALES</div>
-                    <div className="contact-pill-value">6369308779</div>
+                  <div className="contact-pill-item" style={{ border: '1px solid #777777', borderRadius: '18px', padding: '0.25rem 0.5rem', textAlign: 'center' }}>
+                    <div className="contact-pill-label" style={{ fontSize: '0.68rem', color: '#444444', fontWeight: 'bold' }}>SALES</div>
+                    <div className="contact-pill-value" style={{ fontSize: '0.88rem', fontWeight: 'bold', color: '#000000' }}>6369308779</div>
                   </div>
-                  <div className="contact-pill-item">
-                    <div className="contact-pill-label">CUSTOMER CARE</div>
-                    <div className="contact-pill-value">9677037270</div>
+                  <div className="contact-pill-item" style={{ border: '1px solid #777777', borderRadius: '18px', padding: '0.25rem 0.5rem', textAlign: 'center' }}>
+                    <div className="contact-pill-label" style={{ fontSize: '0.68rem', color: '#444444', fontWeight: 'bold' }}>CUSTOMER CARE</div>
+                    <div className="contact-pill-value" style={{ fontSize: '0.88rem', fontWeight: 'bold', color: '#000000' }}>9677037270</div>
                   </div>
                 </div>
 
                 {/* Divider Line */}
-                <div style={{ borderTop: '1px solid #777777', margin: '0.85rem 0 1.25rem' }}></div>
+                <div style={{ borderTop: '1px solid #888888', margin: '0.9rem 0 1.25rem' }}></div>
 
                 {/* Voucher Content */}
-                <div>
+                <div style={{ fontFamily: "'Times New Roman', serif" }}>
                   {/* Voucher No & Date Row */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>
                       VOUCHER NO: {selectedReceiptForPrint.receipt_no}
                     </div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>
                       Date : {selectedReceiptForPrint.receipt_date ? selectedReceiptForPrint.receipt_date.replace(/-/g, '/') : '12/08/2026'}
                     </div>
                   </div>
 
                   {/* Customer Name Row */}
-                  <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: '1.35rem', fontSize: '1.1rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: '1.35rem', fontSize: '1.15rem' }}>
                     <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>Customer Name :</span>
                     <span style={{ 
                       borderBottom: '1px dotted #000000', 
                       flex: 1, 
                       marginLeft: '0.5rem', 
                       fontWeight: 'bold', 
-                      fontSize: '1.2rem',
+                      fontSize: '1.25rem',
                       paddingLeft: '0.5rem' 
                     }}>
                       {selectedReceiptForPrint.customer_name}
@@ -623,7 +624,7 @@ export const Receipt = () => {
                   </div>
 
                   {/* Amount & Account No Row */}
-                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '2rem', marginBottom: '1.35rem', fontSize: '1.1rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '2rem', marginBottom: '1.35rem', fontSize: '1.15rem' }}>
                     <div style={{ display: 'flex', alignItems: 'baseline', flex: 1.2 }}>
                       <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>Amount :</span>
                       <span style={{ 
@@ -631,7 +632,7 @@ export const Receipt = () => {
                         flex: 1, 
                         marginLeft: '0.5rem', 
                         fontWeight: 'bold', 
-                        fontSize: '1.2rem',
+                        fontSize: '1.25rem',
                         paddingLeft: '0.5rem' 
                       }}>
                         {selectedReceiptForPrint.amount}/-
@@ -645,7 +646,7 @@ export const Receipt = () => {
                         flex: 1, 
                         marginLeft: '0.5rem', 
                         fontWeight: 'bold', 
-                        fontSize: '1.2rem',
+                        fontSize: '1.25rem',
                         paddingLeft: '0.5rem' 
                       }}>
                         {selectedReceiptForPrint.account_code || '2917'}
@@ -654,14 +655,14 @@ export const Receipt = () => {
                   </div>
 
                   {/* Sum of Rupees Row */}
-                  <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: '1.5rem', fontSize: '1.15rem' }}>
                     <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>Sum of Rupees :</span>
                     <span style={{ 
                       borderBottom: '1px dotted #000000', 
                       flex: 1, 
                       marginLeft: '0.5rem', 
                       fontWeight: 'bold', 
-                      fontSize: '1.15rem',
+                      fontSize: '1.2rem',
                       paddingLeft: '0.5rem',
                       textTransform: 'lowercase'
                     }}>
@@ -670,25 +671,33 @@ export const Receipt = () => {
                   </div>
 
                   {/* Mode of Payment Pill */}
-                  <div style={{ marginBottom: '2.5rem' }}>
-                    <div className="payment-mode-pill-box">
+                  <div style={{ marginBottom: '2.75rem' }}>
+                    <div style={{ 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      gap: '1rem', 
+                      border: '1px solid #666666', 
+                      borderRadius: '20px', 
+                      padding: '0.35rem 1.4rem', 
+                      fontSize: '1.05rem' 
+                    }}>
                       <span>Mode of payment</span>
-                      <strong style={{ fontSize: '1.05rem' }}>{selectedReceiptForPrint.payment_type || 'CASH'}</strong>
+                      <strong style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{selectedReceiptForPrint.payment_type || 'CASH'}</strong>
                     </div>
                   </div>
 
                   {/* Signatures Row */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '3rem', padding: '0 0.5rem' }}>
-                    <div style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '3.5rem', padding: '0 0.5rem' }}>
+                    <div style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
                       Authorised Signature
                     </div>
-                    <div style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>
+                    <div style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
                       Customer Signature
                     </div>
                   </div>
 
                   {/* Footer Disclaimer */}
-                  <div style={{ textAlign: 'center', fontSize: '0.75rem', color: '#222222', marginTop: '1.5rem' }}>
+                  <div style={{ textAlign: 'center', fontSize: '0.78rem', color: '#222222', marginTop: '1.5rem', fontWeight: 500 }}>
                     Any cancellation is subjects to 10% deduct on at the discretion of the company
                   </div>
                 </div>

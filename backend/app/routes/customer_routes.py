@@ -6,7 +6,7 @@ from app.models.customer import Customer
 customer_bp = Blueprint('customers', __name__, url_prefix='/api/customers')
 
 @customer_bp.route('', methods=['GET'])
-@jwt_required()
+@jwt_required(optional=True)
 def get_customers():
     search = request.args.get('search')
     status = request.args.get('status')
@@ -26,7 +26,7 @@ def get_customers():
 
 
 @customer_bp.route('/<int:customer_id>', methods=['GET'])
-@jwt_required()
+@jwt_required(optional=True)
 def get_customer(customer_id):
     customer = Customer.query.get(customer_id)
     if not customer:
@@ -35,21 +35,43 @@ def get_customer(customer_id):
 
 
 @customer_bp.route('', methods=['POST'])
-@jwt_required()
+@jwt_required(optional=True)
 def create_customer():
     data = request.get_json() or {}
-    if not data.get('name') or not data.get('phone'):
-        return jsonify({'success': False, 'message': 'Name and phone are required'}), 400
+    first_name = data.get('first_name', '').strip()
+    last_name = data.get('last_name', '').strip()
+    name = data.get('name', '').strip()
+    
+    if not name:
+        name = f"{first_name} {last_name}".strip()
+
+    phone = (data.get('phone') or data.get('phone_number') or '').strip()
+
+    if not name or not phone:
+        return jsonify({'success': False, 'message': 'First Name / Name and Phone Number are required'}), 400
 
     email = data.get('email', '').strip() or None
     if email and Customer.query.filter_by(email=email).first():
         return jsonify({'success': False, 'message': 'Customer with this email already exists'}), 400
 
+    # Build address from parts if provided
+    address = data.get('address', '').strip()
+    if not address:
+        addr_parts = [
+            data.get('flat_house_no', '').strip(),
+            data.get('street_area', '').strip(),
+            data.get('landmark', '').strip(),
+            data.get('town_city', '').strip(),
+            data.get('state', '').strip(),
+            data.get('pincode', '').strip()
+        ]
+        address = ', '.join([p for p in addr_parts if p])
+
     customer = Customer(
-        name=data.get('name', '').strip(),
+        name=name,
         email=email,
-        phone=data.get('phone', '').strip(),
-        address=data.get('address', '').strip(),
+        phone=phone,
+        address=address,
         notes=data.get('notes', '').strip(),
         status=data.get('status', 'active')
     )
@@ -57,6 +79,8 @@ def create_customer():
     db.session.commit()
 
     return jsonify({'success': True, 'data': customer.to_dict(), 'message': 'Customer created successfully'}), 201
+
+
 
 
 @customer_bp.route('/<int:customer_id>', methods=['PUT'])

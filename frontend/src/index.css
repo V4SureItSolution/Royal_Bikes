@@ -355,9 +355,10 @@ body {
 .outlined-fieldset {
   border: 1px solid #cbd5e1;
   border-radius: var(--radius-sm);
-  padding: 0.1rem 0.85rem 0.5rem;
+  padding: 0.15rem 0.85rem 0.45rem;
   background-color: #ffffff;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
 }
 
 .outlined-fieldset:focus-within {
@@ -368,12 +369,16 @@ body {
 .outlined-legend {
   font-size: 0.8rem;
   color: #6366f1;
-  padding: 0 0.35rem;
-  margin-left: 0.2rem;
+  padding: 0 0.4rem;
+  margin-left: 0.25rem;
   font-weight: 500;
+  background-color: #ffffff;
+  line-height: 1;
 }
 
-.outlined-input, .outlined-select, .outlined-textarea {
+.outlined-input,
+.outlined-select,
+.outlined-textarea {
   width: 100%;
   border: none;
   outline: none;
@@ -382,6 +387,57 @@ body {
   color: #0f172a;
   font-family: inherit;
   padding: 0.2rem 0;
+}
+
+.outlined-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+
+.modern-date-fieldset {
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-md);
+  padding: 0.15rem 0.75rem 0.35rem;
+  background-color: #ffffff;
+  transition: all 0.2s ease;
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.modern-date-fieldset:hover {
+  border-color: #a5b4fc;
+}
+
+.modern-date-fieldset:focus-within {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.calendar-icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background-color: #eff6ff;
+  color: #3b82f6;
+  transition: all 0.2s ease;
+  margin-left: 0.4rem;
+  flex-shrink: 0;
+}
+
+.modern-date-fieldset:hover .calendar-icon-badge {
+  background-color: #6366f1;
+  color: #ffffff;
+}
+
+.outlined-select:focus,
+.outlined-select:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .outlined-textarea {
@@ -680,52 +736,522 @@ body {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 10mm;
+    margin: 0;
+    /* Suppresses browser automatic header (date, title) and footer (URL, page numbers) */
   }
 
-  body, html {
+  body,
+  html {
     background: #ffffff !important;
     margin: 0 !important;
     padding: 0 !important;
     height: auto !important;
+    overflow: visible !important;
   }
 
-  .karoda-sidebar, 
-  .karoda-topbar, 
-  .workspace-container, 
-  .page-footer-banner, 
+  /* Hide app navigation chrome and non-printable elements */
+  .sidebar-wrapper,
+  .topbar-wrapper,
+  .karoda-sidebar,
+  .karoda-topbar,
+  .page-title-header,
+  .karoda-tabs-wrap,
+  .outlined-fieldset,
+  .form-grid,
+  .form-actions-row,
+  .table-card,
+  .page-footer-banner,
   .receipt-modal-header,
-  .receipt-modal-actions-bar {
+  .receipt-modal-actions-bar,
+  .btn-save-pill,
+  .btn-clear-link,
+  .btn-icon-circle,
+  button {
     display: none !important;
+    visibility: hidden !important;
   }
 
-  .modal-overlay {
+  /* Ensure app wrapper structure remains visible for print DOM rendering */
+  .karoda-app,
+  .karoda-main,
+  .workspace-container {
+    display: block !important;
     position: static !important;
-    background: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+
+  /* Position print overlay cleanly with margin padding for page layout */
+  .modal-overlay {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    background: #ffffff !important;
     backdrop-filter: none !important;
     padding: 0 !important;
     margin: 0 !important;
-    width: 100% !important;
-    height: auto !important;
+    display: block !important;
   }
 
   .printable-receipt-card {
-    position: relative !important;
+    position: static !important;
     box-shadow: none !important;
     border: none !important;
     background: #ffffff !important;
     width: 100% !important;
     max-width: 100% !important;
-    padding: 0 !important;
-    margin: 0 !important;
+    padding: 12mm 10mm !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
   }
 
   .printable-receipt-container {
     border: 2px solid #000000 !important;
     padding: 1.5rem !important;
     margin: 0 auto !important;
+    width: 100% !important;
     max-width: 720px !important;
     background: #ffffff !important;
+    box-sizing: border-box !important;
     page-break-inside: avoid !important;
+  }
+}
+
+/* Add New Dropdown Menu */
+.add-new-dropdown-container {
+  position: relative;
+}
+
+.add-new-menu-popup {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  min-width: 175px;
+  padding: 0.35rem;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.add-new-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.75rem;
+  border: none;
+  background: transparent;
+  color: #334155;
+  font-size: 0.82rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.add-new-menu-item:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.add-new-menu-item .menu-icon-customer {
+  color: #6366f1;
+}
+
+.add-new-menu-item .menu-icon-stock {
+  color: #475569;
+}
+
+/* ==========================================================================
+   New Customer Modal (Exact Screenshot Match)
+   ========================================================================== */
+.new-customer-modal-card {
+  max-width: 440px;
+  width: 92%;
+  padding: 1.25rem 1.4rem;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.25), 0 10px 15px -5px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  max-height: 94vh;
+  overflow-y: auto;
+}
+
+.new-customer-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+
+.new-customer-modal-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #1e293b;
+  letter-spacing: -0.01em;
+}
+
+.new-customer-close-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.new-customer-close-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.new-customer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.new-customer-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.nc-fieldset {
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 0 0.65rem 0.25rem;
+  margin: 0;
+  position: relative;
+  background: #ffffff;
+  transition: border-color 0.15s ease;
+}
+
+.nc-fieldset:focus-within,
+.nc-fieldset.active-focus {
+  border-color: #6366f1;
+}
+
+.nc-legend {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: #64748b;
+  padding: 0 0.25rem;
+  margin-left: -0.25rem;
+  line-height: 1;
+}
+
+.nc-fieldset:focus-within .nc-legend,
+.nc-fieldset.active-focus .nc-legend {
+  color: #6366f1;
+}
+
+.nc-input-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 28px;
+}
+
+.nc-icon {
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.nc-input {
+  border: none;
+  outline: none;
+  width: 100%;
+  background: transparent;
+  font-size: 0.82rem;
+  color: #1e293b;
+  font-family: inherit;
+  padding: 0;
+}
+
+.nc-input-noicon {
+  padding-left: 0.1rem;
+}
+
+.nc-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.nc-select {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #1e293b;
+  appearance: none;
+  cursor: pointer;
+  padding-right: 1.5rem;
+}
+
+.nc-select-arrow {
+  position: absolute;
+  right: 0;
+  pointer-events: none;
+  color: #64748b;
+}
+
+.new-customer-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 0.85rem;
+  padding-top: 0.35rem;
+}
+
+.nc-btn-cancel {
+  background: transparent;
+  border: none;
+  color: #1e293b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+}
+
+.nc-btn-cancel:hover {
+  color: #000000;
+}
+
+.nc-btn-submit {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.nc-btn-submit:hover {
+  color: #4f46e5;
+}
+
+
+/* ==========================================================================
+   Analytics Dashboard & Metric Cards Styles (Matching Screenshots)
+   ========================================================================== */
+.analytics-page-container {
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 0.15rem 0.15rem 0.5rem;
+  max-width: 100%;
+}
+
+.analytics-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+}
+
+.analytics-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.analytics-header-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.analytics-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.analytics-home-icon {
+  color: #94a3b8;
+}
+
+.breadcrumb-dot {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.analytics-header-right {
+  display: flex;
+  align-items: center;
+}
+
+.analytics-action-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.analytics-action-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Royal Bikes Purple / Blue Banner */
+.royal-banner-card {
+  background: #5956E9;
+  border-radius: 8px;
+  padding: 0.9rem 1.25rem;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(89, 86, 233, 0.12);
+}
+
+.royal-banner-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.15rem;
+  color: #ffffff;
+  font-family: var(--font-heading, sans-serif);
+}
+
+.royal-banner-address {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.82);
+  margin-bottom: 0.65rem;
+  letter-spacing: 0.015em;
+}
+
+.royal-banner-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.banner-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.banner-icon {
+  color: #ffffff;
+  opacity: 0.9;
+}
+
+/* 2x2 Metric Cards Grid */
+.analytics-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-top: 0;
+}
+
+.analytics-metric-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0.75rem;
+  border-radius: 8px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  min-height: 85px;
+}
+
+.analytics-metric-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+}
+
+.analytics-metric-card .metric-number {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.analytics-metric-card .metric-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* Card 1: Stock on hand (Pastel Lavender Blue) */
+.analytics-metric-card.card-stock {
+  background-color: #EEF2FF;
+}
+.analytics-metric-card.card-stock .metric-number {
+  color: #2D31A6;
+}
+.analytics-metric-card.card-stock .metric-label {
+  color: #384252;
+}
+
+/* Card 2: Today Sales (Pastel Mint Green) */
+.analytics-metric-card.card-sales {
+  background-color: #EAFBF1;
+}
+.analytics-metric-card.card-sales .metric-number {
+  color: #15803D;
+}
+.analytics-metric-card.card-sales .metric-label {
+  color: #15803D;
+}
+
+/* Card 3: Today Purchase (Pastel Light Yellow/Cream) */
+.analytics-metric-card.card-purchase {
+  background-color: #FEF9E3;
+}
+.analytics-metric-card.card-purchase .metric-number {
+  color: #713F12;
+}
+.analytics-metric-card.card-purchase .metric-label {
+  color: #854D0E;
+}
+
+/* Card 4: Today Expense (Pastel Soft Pink/Red) */
+.analytics-metric-card.card-expense {
+  background-color: #FEECEC;
+}
+.analytics-metric-card.card-expense .metric-number {
+  color: #991B1B;
+}
+.analytics-metric-card.card-expense .metric-label {
+  color: #991B1B;
+}
+
+@media (max-width: 768px) {
+  .analytics-metrics-grid {
+    grid-template-columns: 1fr;
   }
 }

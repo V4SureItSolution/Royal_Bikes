@@ -37,6 +37,8 @@ export const API_ENDPOINTS = {
   },
   REPORTS: {
     CURRENT_STOCK: `${API_BASE_URL}/reports/current-stock`,
-    DAY_BOOK: `${API_BASE_URL}/reports/day-book`
+    DAY_BOOK: `${API_BASE_URL}/reports/day-book`,
+    ANALYTICS: `${API_BASE_URL}/reports/analytics`
   }
 };
+

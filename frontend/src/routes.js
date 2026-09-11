@@ -8,6 +8,7 @@ import { RtnPayment } from './pages/RtnPayment';
 import { DeliveryChallan } from './pages/DeliveryChallan';
 import { CurrentStockReport } from './pages/CurrentStockReport';
 import { DayBookReport } from './pages/DayBookReport';
+import { Analytics } from './pages/Analytics';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { AuthLayout } from './layouts/AuthLayout';
@@ -36,7 +37,8 @@ export const AppRoutes = () => {
       <Route element={<DashboardLayout />}>
         <Route path="/" element={<Navigate to="/delivery-challan/entry" replace />} />
         <Route path="/direct-stock" element={<DirectStock />} />
-        <Route path="/analytics" element={<ModuleView title="Analytics Dashboard" />} />
+        <Route path="/analytics" element={<Analytics />} />
+
         <Route path="/booking-order" element={<ModuleView title="Booking Order" />} />
         <Route path="/receipt" element={<Receipt />} />
         <Route path="/voucher-entry" element={<VoucherEntry />} />

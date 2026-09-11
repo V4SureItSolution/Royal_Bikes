@@ -12,5 +12,12 @@ export const reportService = {
     const query = new URLSearchParams(params).toString();
     const url = `${API_ENDPOINTS.REPORTS.DAY_BOOK}${query ? `?${query}` : ''}`;
     return await fetchWithAuth(url);
+  },
+
+  async getAnalytics(params = {}) {
+    const query = new URLSearchParams(params).toString();
+    const url = `${API_ENDPOINTS.REPORTS.ANALYTICS}${query ? `?${query}` : ''}`;
+    return await fetchWithAuth(url);
   }
 };
+
