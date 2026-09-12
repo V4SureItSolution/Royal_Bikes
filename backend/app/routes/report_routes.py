@@ -3,86 +3,147 @@ from app.models.product import Product
 from app.models.receipt import Receipt
 from app.models.voucher import Voucher
 from app.models.rtn_payment import RtnPayment
+from app.models.direct_stock import DirectStock
 
 report_bp = Blueprint('reports', __name__, url_prefix='/api/reports')
 
+def get_brand_from_product(name):
+    n = (name or '').upper()
+    if 'HONDA' in n: return 'HONDA'
+    if 'HERO' in n: return 'HERO'
+    if 'ROYAL ENFIELD' in n: return 'ROYAL ENFIELD'
+    if 'BAJAJ' in n: return 'BAJAJ'
+    if 'TVS' in n: return 'TVS'
+    if 'YAMAHA' in n: return 'YAMAHA'
+    if 'SUZUKI' in n: return 'SUZUKI'
+    return 'OTHERS'
+
 @report_bp.route('/current-stock', methods=['GET'])
 def get_current_stock_report():
-    as_on_date = request.args.get('as_on_date', '12-08-2026')
+    as_on_date = request.args.get('as_on_date', '').strip()
     search = request.args.get('search', '').strip().lower()
 
-    # Pre-loaded stock dataset matching screenshots
-    honda_stock = [
-        {'model': 'HONDA DIO STD', 'color': 'GREY', 'engine_number': 'JF98EW6054650', 'chassis_number': 'ME4JF98JERW045058'},
-        {'model': 'HONDA ACTIVA DLX', 'color': 'PS BLUE', 'engine_number': 'JK15EG7082683', 'chassis_number': 'ME4JK158KRG082526'},
-        {'model': 'HONDA ACTIVA STD', 'color': 'PS BLUE', 'engine_number': 'JK36EG1276140', 'chassis_number': 'ME4JK361ATG275882'},
-        {'model': 'HONDA DIO STD', 'color': 'BLACK', 'engine_number': 'JK42EG0056772', 'chassis_number': 'ME4JK420MSG028147'},
-        {'model': 'HONDA ACTIVA STD', 'color': 'BLUE', 'engine_number': 'RD-JK36EG1268793', 'chassis_number': 'RD-ME4JK361ATG268564'},
-        {'model': 'HONDA DIO STD', 'color': 'GREY', 'engine_number': 'JK42EG0100642', 'chassis_number': 'ME4JK422ETG048872'},
-        {'model': 'HONDA DIO STD', 'color': 'RED', 'engine_number': 'JK42EG0105398', 'chassis_number': 'ME4JK420FTG054278'},
-        {'model': 'HONDA DIO 125 STD', 'color': 'G.GREY', 'engine_number': 'JK44EW0163428', 'chassis_number': 'ME4JK442FTW053405'},
-        {'model': 'HONDA ACTIVA STD', 'color': 'RED', 'engine_number': 'JK36EW4086491', 'chassis_number': 'ME4JK364FTW086406'},
-        {'model': 'HONDA SP125 DISC', 'color': 'B/RED', 'engine_number': 'JC94EG4414551', 'chassis_number': 'ME4JC94EGTG762974'}
-    ]
+    query = DirectStock.query
+    entries = query.order_by(DirectStock.created_at.asc()).all()
 
-    hero_stock = [
-        {'model': 'HERO SPLENDOR PLUS', 'color': 'BLACK', 'engine_number': 'HA10ER789123', 'chassis_number': 'ME4HA10ER889100'},
-        {'model': 'HERO HF DELUXE', 'color': 'RED', 'engine_number': 'HA10ER554112', 'chassis_number': 'ME4HA10ER998122'}
-    ]
-
-    re_stock = [
-        {'model': 'ROYAL ENFIELD CLASSIC 350', 'color': 'STEALTH BLACK', 'engine_number': 'J350ENG99120', 'chassis_number': 'ME4J350CHS11200'},
-        {'model': 'ROYAL ENFIELD HUNTER 350', 'color': 'DAPPER GREY', 'engine_number': 'J350ENG88712', 'chassis_number': 'ME4J350CHS22199'}
-    ]
-
-    if search:
-        honda_stock = [item for item in honda_stock if search in item['model'].lower() or search in item['engine_number'].lower() or search in item['chassis_number'].lower() or search in item['color'].lower()]
-        hero_stock = [item for item in hero_stock if search in item['model'].lower() or search in item['engine_number'].lower() or search in item['chassis_number'].lower() or search in item['color'].lower()]
-        re_stock = [item for item in re_stock if search in item['model'].lower() or search in item['engine_number'].lower() or search in item['chassis_number'].lower() or search in item['color'].lower()]
+    grouped = {}
+    for entry in entries:
+        item = {
+            'model': entry.product.upper(),
+            'color': entry.color.upper(),
+            'engine_number': entry.engine_number,
+            'chassis_number': entry.chassis_number
+        }
+        if search and not any(
+            search in v.lower() for v in item.values()
+        ):
+            continue
+        brand = get_brand_from_product(entry.product)
+        grouped.setdefault(brand, []).append(item)
 
     return jsonify({
         'success': True,
         'as_on_date': as_on_date,
-        'data': {
-            'HONDA': honda_stock,
-            'HERO': hero_stock,
-            'ROYAL ENFIELD': re_stock
-        }
+        'data': grouped
     }), 200
 
 @report_bp.route('/day-book', methods=['GET'])
 def get_day_book_report():
-    from_date = request.args.get('from_date', '12-08-2026')
-    to_date = request.args.get('to_date', '12-08-2026')
+    from_date = request.args.get('from_date', '').strip()
+    to_date = request.args.get('to_date', '').strip()
 
-    receipts = [
-        {'date': '12-Aug-2026', 'receipt_no': '04698', 'particulars': 'KEERTHANA', 'acct_no': '2917', 'amount': 4000.0}
-    ]
+    # Fetch receipts
+    receipt_query = Receipt.query.filter_by(status='active')
+    if from_date:
+        receipt_query = receipt_query.filter(Receipt.receipt_date >= from_date)
+    if to_date:
+        receipt_query = receipt_query.filter(Receipt.receipt_date <= to_date)
+    receipts_db = receipt_query.order_by(Receipt.created_at.asc()).all()
 
-    vouchers = [
-        {'date': '12-Aug-2026', 'voucher_no': '04889', 'particulars': 'VP GI BOOMIKA', 'acct_no': '2852', 'amount': 5741.0}
-    ]
+    # Fetch vouchers
+    voucher_query = Voucher.query.filter_by(status='active')
+    if from_date:
+        voucher_query = voucher_query.filter(Voucher.voucher_date >= from_date)
+    if to_date:
+        voucher_query = voucher_query.filter(Voucher.voucher_date <= to_date)
+    vouchers_db = voucher_query.order_by(Voucher.created_at.asc()).all()
 
-    accounts_breakdown = [
-        {'acct_no': '2111', 'amount': 5000.0},
-        {'acct_no': '1539', 'amount': 1000.0},
-        {'acct_no': '1731', 'amount': 1000.0},
-        {'acct_no': '1823', 'amount': -90477.0},
-        {'acct_no': '1884', 'amount': 5000.0},
-        {'acct_no': '2104', 'amount': 10000.0},
-        {'acct_no': '2568', 'amount': 10000.0}
-    ]
+    # Fetch RTN payments
+    rtn_query = RtnPayment.query.filter_by(status='active')
+    if from_date:
+        rtn_query = rtn_query.filter(RtnPayment.rtn_date >= from_date)
+    if to_date:
+        rtn_query = rtn_query.filter(RtnPayment.rtn_date <= to_date)
+    rtns_db = rtn_query.order_by(RtnPayment.created_at.asc()).all()
+
+    receipts = [{
+        'date': r.receipt_date,
+        'receipt_no': r.receipt_no,
+        'particulars': r.customer_name,
+        'acct_no': r.account_code or '-',
+        'amount': r.amount
+    } for r in receipts_db]
+
+    vouchers = [{
+        'date': v.voucher_date,
+        'voucher_no': v.voucher_no,
+        'particulars': v.customer_name,
+        'acct_no': v.account_code or '-',
+        'amount': v.amount
+    } for v in vouchers_db]
+
+    rtn_payments = [{
+        'date': r.rtn_date,
+        'voucher_no': r.voucher_no,
+        'particulars': r.customer_name,
+        'acct_no': r.account_code or '-',
+        'amount': r.amount
+    } for r in rtns_db]
+
+    receipts_total = sum(r['amount'] for r in receipts)
+    vouchers_total = sum(v['amount'] for v in vouchers)
+    rtn_total = sum(r['amount'] for r in rtn_payments)
+
+    # Opening balance: receipts - vouchers - rtn_payments before from_date
+    opening_balance = 0.0
+    if from_date:
+        prev_receipts = Receipt.query.filter(Receipt.status == 'active', Receipt.receipt_date < from_date).all()
+        prev_vouchers = Voucher.query.filter(Voucher.status == 'active', Voucher.voucher_date < from_date).all()
+        prev_rtns = RtnPayment.query.filter(RtnPayment.status == 'active', RtnPayment.rtn_date < from_date).all()
+        opening_balance = (
+            sum(r.amount for r in prev_receipts)
+            - sum(v.amount for v in prev_vouchers)
+            - sum(r.amount for r in prev_rtns)
+        )
+
+    closing_balance = opening_balance + receipts_total - vouchers_total - rtn_total
+
+    # Account-wise breakdown
+    acct_map = {}
+    for r in receipts_db:
+        key = r.account_code or 'N/A'
+        acct_map[key] = acct_map.get(key, 0.0) + r.amount
+    for v in vouchers_db:
+        key = v.account_code or 'N/A'
+        acct_map[key] = acct_map.get(key, 0.0) - v.amount
+    for r in rtns_db:
+        key = r.account_code or 'N/A'
+        acct_map[key] = acct_map.get(key, 0.0) - r.amount
+
+    accounts_breakdown = [{'acct_no': k, 'amount': v} for k, v in acct_map.items()]
 
     return jsonify({
         'success': True,
         'from_date': from_date,
         'to_date': to_date,
-        'opening_balance': 769739.00,
-        'closing_balance': 767998.00,
+        'opening_balance': round(opening_balance, 2),
+        'closing_balance': round(closing_balance, 2),
         'receipts': receipts,
-        'receipts_total': 4000.0,
+        'receipts_total': round(receipts_total, 2),
         'vouchers': vouchers,
-        'vouchers_total': 5741.0,
+        'vouchers_total': round(vouchers_total, 2),
+        'rtn_payments': rtn_payments,
+        'rtn_total': round(rtn_total, 2),
         'accounts_breakdown': accounts_breakdown
     }), 200
 

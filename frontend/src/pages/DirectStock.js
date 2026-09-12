@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FileText, Calendar, ChevronDown, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import { productService } from '../services/productService';
+import { API_ENDPOINTS } from '../constants/apiEndpoints';
+import { fetchWithAuth } from '../services/api';
 
 export const DirectStock = () => {
   const [activeTab, setActiveTab] = useState('entry'); // 'entry' | 'view'
@@ -21,20 +23,7 @@ export const DirectStock = () => {
     'RNS MOTORS'
   ]);
 
-  const [stockEntries, setStockEntries] = useState([
-    {
-      id: 1,
-      organization: 'ROYAL BIKES',
-      date: '12-08-2026',
-      vendor: 'HARDEEP HONDA',
-      product: 'Royal Enfield Classic 350',
-      quantity: 1,
-      engineNumber: 'ENG-350-98214',
-      chassisNumber: 'CHS-RE-77120',
-      color: 'Stealth Black',
-      notes: 'Initial direct stock entry from main distributor.'
-    }
-  ]);
+  const [stockEntries, setStockEntries] = useState([]);
 
   const [formData, setFormData] = useState({
     organization: 'ROYAL BIKES',
@@ -76,6 +65,19 @@ export const DirectStock = () => {
     }
   };
 
+  const fetchStockEntries = async () => {
+    try {
+      const res = await fetchWithAuth(`${API_ENDPOINTS.DIRECT_STOCK || 'http://localhost:5000/api/direct-stock'}`);
+      if (res.success) setStockEntries(res.data);
+    } catch (err) {
+      console.warn('Failed to fetch direct stock entries:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchStockEntries();
+  }, []);
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -105,22 +107,30 @@ export const DirectStock = () => {
     });
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     if (!formData.product || !formData.vendor || !formData.engineNumber || !formData.chassisNumber || !formData.color) {
       alert('Please fill out all required fields marked with *');
       return;
     }
 
-    const newEntry = {
-      id: Date.now(),
-      ...formData
-    };
-
-    setStockEntries([newEntry, ...stockEntries]);
-    alert('Direct Stock Entry saved successfully!');
-    handleClear();
-    setActiveTab('view');
+    try {
+      const res = await fetchWithAuth('http://localhost:5000/api/direct-stock', {
+        method: 'POST',
+        body: JSON.stringify(formData)
+      });
+      if (res.success) {
+        await fetchStockEntries();
+        window.dispatchEvent(new Event('directStockUpdated'));
+        alert('Direct Stock Entry saved successfully!');
+        handleClear();
+        setActiveTab('view');
+      } else {
+        alert(res.message || 'Failed to save entry');
+      }
+    } catch (err) {
+      alert('Error saving entry. Please check if backend is running.');
+    }
   };
 
   const handleApplyFilters = (e) => {

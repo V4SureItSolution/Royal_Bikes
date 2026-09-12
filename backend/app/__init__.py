@@ -18,6 +18,7 @@ from app.routes.voucher_routes import voucher_bp
 from app.routes.rtn_payment_routes import rtn_payment_bp
 from app.routes.delivery_challan_routes import delivery_challan_bp
 from app.routes.report_routes import report_bp
+from app.routes.direct_stock_routes import direct_stock_bp
 
 def create_app(config_name=None):
     if config_name is None:
@@ -48,6 +49,7 @@ def create_app(config_name=None):
     app.register_blueprint(rtn_payment_bp)
     app.register_blueprint(delivery_challan_bp)
     app.register_blueprint(report_bp)
+    app.register_blueprint(direct_stock_bp)
 
     # Global Error Handlers
     @app.errorhandler(404)

@@ -5,42 +5,27 @@ import { reportService } from '../services/reportService';
 export const CurrentStockReport = () => {
   const [asOnDate, setAsOnDate] = useState('12-08-2026');
   const [searchQuery, setSearchQuery] = useState('');
-  const [stockData, setStockData] = useState({
-    HONDA: [
-      { model: 'HONDA DIO STD', color: 'GREY', engine_number: 'JF98EW6054650', chassis_number: 'ME4JF98JERW045058' },
-      { model: 'HONDA ACTIVA DLX', color: 'PS BLUE', engine_number: 'JK15EG7082683', chassis_number: 'ME4JK158KRG082526' },
-      { model: 'HONDA ACTIVA STD', color: 'PS BLUE', engine_number: 'JK36EG1276140', chassis_number: 'ME4JK361ATG275882' },
-      { model: 'HONDA DIO STD', color: 'BLACK', engine_number: 'JK42EG0056772', chassis_number: 'ME4JK420MSG028147' },
-      { model: 'HONDA ACTIVA STD', color: 'BLUE', engine_number: 'RD-JK36EG1268793', chassis_number: 'RD-ME4JK361ATG268564' },
-      { model: 'HONDA DIO STD', color: 'GREY', engine_number: 'JK42EG0100642', chassis_number: 'ME4JK422ETG048872' },
-      { model: 'HONDA DIO STD', color: 'RED', engine_number: 'JK42EG0105398', chassis_number: 'ME4JK420FTG054278' },
-      { model: 'HONDA DIO 125 STD', color: 'G.GREY', engine_number: 'JK44EW0163428', chassis_number: 'ME4JK442FTW053405' },
-      { model: 'HONDA ACTIVA STD', color: 'RED', engine_number: 'JK36EW4086491', chassis_number: 'ME4JK364FTW086406' },
-      { model: 'HONDA SP125 DISC', color: 'B/RED', engine_number: 'JC94EG4414551', chassis_number: 'ME4JC94EGTG762974' }
-    ],
-    HERO: [
-      { model: 'HERO SPLENDOR PLUS', color: 'BLACK', engine_number: 'HA10ER789123', chassis_number: 'ME4HA10ER889100' },
-      { model: 'HERO HF DELUXE', color: 'RED', engine_number: 'HA10ER554112', chassis_number: 'ME4HA10ER998122' }
-    ],
-    'ROYAL ENFIELD': [
-      { model: 'ROYAL ENFIELD CLASSIC 350', color: 'STEALTH BLACK', engine_number: 'J350ENG99120', chassis_number: 'ME4J350CHS11200' },
-      { model: 'ROYAL ENFIELD HUNTER 350', color: 'DAPPER GREY', engine_number: 'J350ENG88712', chassis_number: 'ME4J350CHS22199' }
-    ]
-  });
+  const [stockData, setStockData] = useState({});
 
   const loadStockReport = async () => {
     try {
       const res = await reportService.getCurrentStockReport({ as_on_date: asOnDate, search: searchQuery });
-      if (res.success && res.data) {
-        setStockData(res.data);
-      }
+      if (res.success && res.data) setStockData(res.data);
     } catch (err) {
-      console.warn('Using local stock dataset:', err);
+      console.warn('Failed to load stock report:', err);
     }
   };
 
   useEffect(() => {
     loadStockReport();
+
+    const handleUpdate = () => loadStockReport();
+    window.addEventListener('directStockUpdated', handleUpdate);
+    window.addEventListener('focus', handleUpdate);
+    return () => {
+      window.removeEventListener('directStockUpdated', handleUpdate);
+      window.removeEventListener('focus', handleUpdate);
+    };
   }, [asOnDate, searchQuery]);
 
   return (
@@ -120,9 +105,15 @@ export const CurrentStockReport = () => {
 
       {/* Brand Stock Tables */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        {Object.keys(stockData).length === 0 && (
+          <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b', fontSize: '0.95rem' }}>
+            No stock entries found. Add products via Direct Stock.
+          </div>
+        )}
+
         {Object.entries(stockData).map(([brand, items]) => {
-          const filteredItems = items.filter((item) => 
-            !searchQuery || 
+          const filteredItems = items.filter((item) =>
+            !searchQuery ||
             item.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.color.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.engine_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -131,30 +122,50 @@ export const CurrentStockReport = () => {
 
           if (filteredItems.length === 0) return null;
 
+          // Total stock = sum of all entries under this brand
+          const totalStock = filteredItems.length;
+
           return (
             <div key={brand}>
-              {/* Brand Title */}
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#6366f1', marginBottom: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                {brand}
-              </h3>
+              {/* Brand Title + Total Stock Badge */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.65rem' }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#6366f1', margin: 0, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  {brand}
+                </h3>
+                <span style={{
+                  backgroundColor: '#e0e7ff',
+                  color: '#3730a3',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  padding: '0.2rem 0.65rem',
+                  borderRadius: '999px',
+                  border: '1px solid #c7d2fe'
+                }}>
+                  Total Stock: {totalStock}
+                </span>
+              </div>
 
-              {/* Dark Blue Header Table */}
+              {/* Table */}
               <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: '#ffffff' }}>
                   <thead>
                     <tr style={{ backgroundColor: '#000099', color: '#ffffff' }}>
-                      <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 700, fontSize: '0.9rem', width: '30%' }}>Model</th>
+                      <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 700, fontSize: '0.9rem', width: '5%' }}>#</th>
+                      <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 700, fontSize: '0.9rem', width: '28%' }}>Model</th>
                       <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 700, fontSize: '0.9rem', width: '15%' }}>Color</th>
                       <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 700, fontSize: '0.9rem', width: '25%' }}>Engine Number</th>
-                      <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 700, fontSize: '0.9rem', width: '30%' }}>Chassis Number</th>
+                      <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 700, fontSize: '0.9rem', width: '27%' }}>Chassis Number</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredItems.map((row, idx) => (
-                      <tr 
-                        key={idx} 
+                      <tr
+                        key={idx}
                         style={{ borderBottom: idx === filteredItems.length - 1 ? 'none' : '1px solid #f1f5f9', backgroundColor: idx % 2 === 0 ? '#ffffff' : '#fafafa' }}
                       >
+                        <td style={{ padding: '0.75rem 1rem', color: '#94a3b8', fontSize: '0.82rem', fontWeight: 600 }}>
+                          {idx + 1}
+                        </td>
                         <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: '#1e293b', fontSize: '0.88rem' }}>
                           {row.model}
                         </td>
@@ -170,6 +181,17 @@ export const CurrentStockReport = () => {
                       </tr>
                     ))}
                   </tbody>
+                  {/* Brand Total Footer Row */}
+                  <tfoot>
+                    <tr style={{ backgroundColor: '#f8fafc', borderTop: '2px solid #e2e8f0' }}>
+                      <td colSpan={4} style={{ padding: '0.6rem 1rem', fontWeight: 700, color: '#475569', fontSize: '0.85rem' }}>
+                        Total {brand} Stock
+                      </td>
+                      <td style={{ padding: '0.6rem 1rem', fontWeight: 800, color: '#3730a3', fontSize: '0.9rem' }}>
+                        {totalStock} unit{totalStock !== 1 ? 's' : ''}
+                      </td>
+                    </tr>
+                  </tfoot>
                 </table>
               </div>
             </div>
