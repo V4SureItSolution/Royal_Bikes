@@ -41,7 +41,6 @@ export const AppRoutes = () => {
           <Route path="/dashboard" element={<Navigate to="/analytics" replace />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/direct-stock" element={<DirectStock />} />
-
           <Route path="/booking-order" element={<BookingOrder />} />
           <Route path="/booking-order/entry" element={<BookingOrder />} />
           <Route path="/booking-order/view" element={<BookingOrder />} />
@@ -54,6 +53,7 @@ export const AppRoutes = () => {
           <Route path="/current-stock-report" element={<CurrentStockReport />} />
           <Route path="/mis-report" element={<DayBookReport />} />
           <Route path="/day-book" element={<DayBookReport />} />
+          <Route path="/application-settings" element={<ModuleView title="Application Settings" />} />
           <Route path="*" element={<Navigate to="/analytics" replace />} />
         </Route>
       </Route>
@@ -61,3 +61,4 @@ export const AppRoutes = () => {
   );
 };
 
+export default AppRoutes;
