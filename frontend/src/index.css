@@ -875,11 +875,70 @@ body {
 }
 
 /* ==========================================================================
+   Modals & Overlays (Centering on screen)
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1.25rem;
+  overflow-y: auto;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  max-width: 540px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+  margin: auto;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+.printable-receipt-card {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  max-width: 780px;
+  width: 100%;
+  max-height: 92vh;
+  overflow-y: auto;
+  position: relative;
+  margin: auto;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ==========================================================================
    New Customer Modal (Exact Screenshot Match)
    ========================================================================== */
 .new-customer-modal-card {
   max-width: 440px;
-  width: 92%;
+  width: 100%;
   padding: 1.25rem 1.4rem;
   background: #ffffff;
   border-radius: 8px;
@@ -887,6 +946,8 @@ body {
   border: 1px solid rgba(0, 0, 0, 0.08);
   max-height: 94vh;
   overflow-y: auto;
+  margin: auto;
+  animation: modalFadeIn 0.2s ease-out;
 }
 
 .new-customer-modal-header {
@@ -1254,4 +1315,162 @@ body {
   .analytics-metrics-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ==========================================================================
+   Order Booking Styles (Matching Screenshot)
+   ========================================================================== */
+.order-booking-container {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.order-booking-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+@media (max-width: 880px) {
+  .order-booking-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.booking-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.1rem;
+}
+
+.booking-section-icon-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: #e0e7ff;
+  color: #6366f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.booking-section-icon-badge.cyan {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.booking-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.booking-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 0.7rem 0.9rem;
+  transition: all 0.2s ease;
+  margin-bottom: 0.85rem;
+  min-height: 44px;
+}
+
+.booking-input-wrap:focus-within {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.booking-input-wrap input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 0.88rem;
+  color: #1e293b;
+  background: transparent;
+  font-family: inherit;
+}
+
+.booking-input-wrap input::placeholder {
+  color: #6366f1;
+  opacity: 0.85;
+}
+
+.booking-address-box {
+  background-color: #eef9fa;
+  border: 1px solid #c2e9ee;
+  border-radius: 8px;
+  padding: 1.15rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.booking-address-box .booking-input-wrap {
+  background: #ffffff;
+  border: 1px solid #99d5dd;
+  margin-bottom: 0.85rem;
+}
+
+.booking-address-box .booking-input-wrap:focus-within {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.booking-address-box .booking-input-wrap input::placeholder {
+  color: #0284c7;
+  opacity: 0.85;
+}
+
+.booking-state-fieldset {
+  border: 1px solid #99d5dd;
+  border-radius: 6px;
+  padding: 0 0.85rem 0.35rem;
+  background-color: #ffffff;
+  position: relative;
+  transition: all 0.2s ease;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.booking-state-fieldset:focus-within {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.booking-state-legend {
+  font-size: 0.72rem;
+  color: #0284c7;
+  padding: 0 0.35rem;
+  margin-left: 0.15rem;
+  font-weight: 500;
+  background-color: #ffffff;
+  line-height: 1;
+}
+
+.booking-state-select-wrap {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.booking-state-select {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.88rem;
+  color: #1e293b;
+  cursor: pointer;
+  padding: 0.2rem 0;
+  font-weight: 500;
+  appearance: none;
+  -webkit-appearance: none;
 }

@@ -175,8 +175,8 @@ export const Navbar = () => {
 
       {/* New Customer Modal (Exact UI Match) */}
       {showCustomerModal && (
-        <div className="modal-overlay" style={{ zIndex: 1000 }}>
-          <div className="new-customer-modal-card">
+        <div className="modal-overlay" onClick={() => setShowCustomerModal(false)}>
+          <div className="new-customer-modal-card" onClick={(e) => e.stopPropagation()}>
             {/* Modal Header */}
             <div className="new-customer-modal-header">
               <h2 className="new-customer-modal-title">New Customer</h2>

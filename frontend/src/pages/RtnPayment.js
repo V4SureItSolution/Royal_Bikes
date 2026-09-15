@@ -38,20 +38,8 @@ export const RtnPayment = () => {
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Initial Sample Data
-  const [rtnPayments, setRtnPayments] = useState([
-    {
-      id: 1,
-      voucher_no: '05102',
-      account_code: '3104',
-      customer_name: 'SURESH KUMAR',
-      rtn_date: '12-08-2026',
-      amount: 2500,
-      payment_type: 'CASH',
-      note: '-',
-      status: 'active'
-    }
-  ]);
+  // RTN Payments Data List
+  const [rtnPayments, setRtnPayments] = useState([]);
 
   const [customerList, setCustomerList] = useState([
     { id: 1, name: 'SURESH KUMAR', city: 'CHENNAI', mob: '9840897744' },

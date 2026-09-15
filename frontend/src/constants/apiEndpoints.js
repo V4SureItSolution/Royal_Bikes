@@ -35,6 +35,14 @@ export const API_ENDPOINTS = {
     BASE: `${API_BASE_URL}/delivery-challans`,
     BY_ID: (id) => `${API_BASE_URL}/delivery-challans/${id}`
   },
+  BOOKING_ORDERS: {
+    BASE: `${API_BASE_URL}/booking-orders`,
+    BY_ID: (id) => `${API_BASE_URL}/booking-orders/${id}`
+  },
+  DIRECT_STOCK: {
+    BASE: `${API_BASE_URL}/direct-stock`,
+    BY_ID: (id) => `${API_BASE_URL}/direct-stock/${id}`
+  },
   REPORTS: {
     CURRENT_STOCK: `${API_BASE_URL}/reports/current-stock`,
     DAY_BOOK: `${API_BASE_URL}/reports/day-book`,

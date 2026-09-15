@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from collections import defaultdict
 from app.models.product import Product
 from app.models.receipt import Receipt
 from app.models.voucher import Voucher
@@ -23,28 +24,78 @@ def get_current_stock_report():
     as_on_date = request.args.get('as_on_date', '').strip()
     search = request.args.get('search', '').strip().lower()
 
-    query = DirectStock.query
-    entries = query.order_by(DirectStock.created_at.asc()).all()
+    # Query all active in-stock vehicles from DirectStock table
+    entries = DirectStock.query.filter(DirectStock.status != 'Delivered').order_by(DirectStock.id.desc()).all()
 
-    grouped = {}
-    for entry in entries:
-        item = {
-            'model': entry.product.upper(),
-            'color': entry.color.upper(),
-            'engine_number': entry.engine_number,
-            'chassis_number': entry.chassis_number
-        }
-        if search and not any(
-            search in v.lower() for v in item.values()
-        ):
-            continue
-        brand = get_brand_from_product(entry.product)
-        grouped.setdefault(brand, []).append(item)
+    grouped_stock = defaultdict(list)
+
+    for item in entries:
+        model = (item.product or '').strip()
+        vendor = (item.vendor or '').strip()
+        color = (item.color or '').strip()
+        engine_no = (item.engine_number or '').strip()
+        chassis_no = (item.chassis_number or '').strip()
+
+        # Check search match
+        if search:
+            match = (
+                search in model.lower() or
+                search in vendor.lower() or
+                search in color.lower() or
+                search in engine_no.lower() or
+                search in chassis_no.lower()
+            )
+            if not match:
+                continue
+
+        # Determine Brand dynamically
+        raw_brand = (getattr(item, 'brand', None) or '').strip().upper()
+        model_upper = model.upper()
+        vendor_upper = vendor.upper()
+
+        if raw_brand and raw_brand in ['HONDA', 'HERO', 'ROYAL ENFIELD', 'YAMAHA', 'TVS', 'SUZUKI', 'BAJAJ']:
+            brand = raw_brand
+        elif 'HONDA' in model_upper or 'HONDA' in vendor_upper or 'DIO' in model_upper or 'ACTIVA' in model_upper:
+            brand = 'HONDA'
+        elif 'HERO' in model_upper or 'HERO' in vendor_upper or 'SPLENDOR' in model_upper or 'HF DELUXE' in model_upper:
+            brand = 'HERO'
+        elif any(k in model_upper for k in ['ROYAL ENFIELD', 'CLASSIC', 'HUNTER', 'METEOR', 'BULLET', 'HIMALAYAN', 'INTERCEPTOR', 'CONTINENTAL', 'GUERRILLA', 'SHOTGUN']) or 'ENFIELD' in vendor_upper:
+            brand = 'ROYAL ENFIELD'
+        elif 'YAMAHA' in model_upper or 'YAMAHA' in vendor_upper:
+            brand = 'YAMAHA'
+        elif 'TVS' in model_upper or 'TVS' in vendor_upper:
+            brand = 'TVS'
+        elif 'SUZUKI' in model_upper or 'SUZUKI' in vendor_upper:
+            brand = 'SUZUKI'
+        elif 'BAJAJ' in model_upper or 'BAJAJ' in vendor_upper:
+            brand = 'BAJAJ'
+        elif raw_brand:
+            brand = raw_brand
+        else:
+            brand = vendor_upper if vendor_upper and vendor_upper != 'ALL' else 'OTHER'
+
+        grouped_stock[brand].append({
+            'model': model,
+            'color': color,
+            'engine_number': engine_no,
+            'chassis_number': chassis_no,
+            'vendor': vendor,
+            'date': item.date
+        })
+
+    # Ensure consistent ordering of brands
+    ordered_result = {}
+    for key in ['HONDA', 'HERO', 'ROYAL ENFIELD']:
+        if key in grouped_stock:
+            ordered_result[key] = grouped_stock[key]
+    for key, val in grouped_stock.items():
+        if key not in ordered_result:
+            ordered_result[key] = val
 
     return jsonify({
         'success': True,
         'as_on_date': as_on_date,
-        'data': grouped
+        'data': ordered_result
     }), 200
 
 @report_bp.route('/day-book', methods=['GET'])

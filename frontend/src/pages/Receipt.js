@@ -38,20 +38,8 @@ export const Receipt = () => {
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Initial Sample Data (matching screenshot)
-  const [receipts, setReceipts] = useState([
-    {
-      id: 1,
-      receipt_no: '04698',
-      account_code: '2917',
-      customer_name: 'KEERTHANA',
-      receipt_date: '12-08-2026',
-      amount: 4000,
-      payment_type: 'CASH',
-      note: '-',
-      status: 'active'
-    }
-  ]);
+  // Receipts Data List
+  const [receipts, setReceipts] = useState([]);
 
   const [customerList, setCustomerList] = useState([
     { id: 1, name: 'KEERTHANA', city: 'CHENNAI', mob: '9876543210' },

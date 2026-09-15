@@ -53,20 +53,8 @@ export const VoucherEntry = () => {
   const fromDateRef = useRef(null);
   const toDateRef = useRef(null);
 
-  // Initial Sample Data (matching screenshot)
-  const [vouchers, setVouchers] = useState([
-    {
-      id: 1,
-      voucher_no: '04889',
-      account_code: '2852',
-      customer_name: 'VP GI BOOMIKA',
-      voucher_date: '12-08-2026',
-      amount: 5741,
-      payment_type: 'CASH',
-      note: '-',
-      status: 'active'
-    }
-  ]);
+  // Vouchers Data List
+  const [vouchers, setVouchers] = useState([]);
 
   const [customerList, setCustomerList] = useState([
     { id: 1, name: 'VP GI BOOMIKA', city: 'CHENNAI', mob: '9876543210' },

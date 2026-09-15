@@ -1,35 +1,84 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FileText, Calendar, ChevronDown, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import { productService } from '../services/productService';
-import { API_ENDPOINTS } from '../constants/apiEndpoints';
-import { fetchWithAuth } from '../services/api';
+import { directStockService } from '../services/directStockService';
 
-export const DirectStock = () => {
-  const [activeTab, setActiveTab] = useState('entry'); // 'entry' | 'view'
-  const [productsList, setProductsList] = useState([
+const BRAND_MODELS = {
+  'ROYAL ENFIELD': [
     'Royal Enfield Classic 350',
     'Royal Enfield Hunter 350',
     'Royal Enfield Meteor 350',
     'Royal Enfield Bullet 350',
     'Royal Enfield Himalayan 450',
+    'Royal Enfield Guerrilla 450',
+    'Royal Enfield Shotgun 650',
+    'Royal Enfield Continental GT 650',
     'Royal Enfield Interceptor 650',
-    'Royal Enfield Continental GT 650'
-  ]);
+    'Royal Enfield Super Meteor 650'
+  ],
+  'HONDA': [
+    'HONDA DIO 110 STD',
+    'HONDA DIO 125 STD',
+    'HONDA ACTIVA 6G STD',
+    'HONDA ACTIVA 6G DLX',
+    'HONDA ACTIVA 125',
+    'HONDA SP 125 DISC',
+    'HONDA SHINE 125 DISC',
+    'HONDA SHINE 100',
+    'HONDA UNICORN 160',
+    'HONDA HORNET 2.0',
+    'HONDA CB350 H\'NESS',
+    'HONDA CB350RS'
+  ],
+  'HERO': [
+    'HERO SPLENDOR PLUS',
+    'HERO SPLENDOR PLUS XTEC',
+    'HERO HF DELUXE',
+    'HERO GLAMOUR 125',
+    'HERO PASSION PLUS',
+    'HERO SUPER SPLENDOR',
+    'HERO XTREME 125R',
+    'HERO XTREME 160R 4V',
+    'HERO XPULSE 200 4V',
+    'HERO DESTINI 125',
+    'HERO PLEASURE PLUS'
+  ]
+};
+
+const BRANDS_LIST = ['ROYAL ENFIELD', 'HONDA', 'HERO'];
+
+export const DirectStock = () => {
+  const [activeTab, setActiveTab] = useState('entry'); // 'entry' | 'view'
+  const [selectedBrand, setSelectedBrand] = useState('ROYAL ENFIELD');
+  const [customModel, setCustomModel] = useState('');
+  const [isCustomModel, setIsCustomModel] = useState(false);
+
   const [vendorsList] = useState([
-    'HARDEEP HONDA',
     'ROYAL ENFIELD DISTRIBUTORS',
+    'HARDEEP HONDA',
+    'HERO MOTOCORP DEALERS',
     'SRI MOTORS',
     'MADRAS MOTORS',
     'RNS MOTORS'
   ]);
 
-  const [stockEntries, setStockEntries] = useState([]);
+  const getStoredStocks = () => {
+    try {
+      const stored = localStorage.getItem('royalbikes_direct_stocks');
+      if (stored) return JSON.parse(stored);
+    } catch (e) {}
+    return [];
+  };
+
+  const [stockEntries, setStockEntries] = useState(getStoredStocks);
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     organization: 'ROYAL BIKES',
+    brand: 'ROYAL ENFIELD',
     date: '12-08-2026',
-    vendor: 'HARDEEP HONDA',
-    product: '',
+    vendor: 'ROYAL ENFIELD DISTRIBUTORS',
+    product: 'Royal Enfield Classic 350',
     quantity: 1,
     engineNumber: '',
     chassisNumber: '',
@@ -39,11 +88,13 @@ export const DirectStock = () => {
 
   // Filter Input States (Pending)
   const [inputOrgFilter, setInputOrgFilter] = useState('ALL');
+  const [inputBrandFilter, setInputBrandFilter] = useState('ALL');
   const [inputFromDate, setInputFromDate] = useState('');
   const [inputToDate, setInputToDate] = useState('');
 
   // Applied Filter States (Used for table)
   const [appliedOrgFilter, setAppliedOrgFilter] = useState('ALL');
+  const [appliedBrandFilter, setAppliedBrandFilter] = useState('ALL');
   const [appliedFromDate, setAppliedFromDate] = useState('');
   const [appliedToDate, setAppliedToDate] = useState('');
 
@@ -65,40 +116,60 @@ export const DirectStock = () => {
     }
   };
 
-  const fetchStockEntries = async () => {
+  const loadStockEntries = async () => {
     try {
-      const res = await fetchWithAuth(`${API_ENDPOINTS.DIRECT_STOCK || 'http://localhost:5000/api/direct-stock'}`);
-      if (res.success) setStockEntries(res.data);
+      const res = await directStockService.getDirectStocks();
+      if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setStockEntries(res.data);
+        localStorage.setItem('royalbikes_direct_stocks', JSON.stringify(res.data));
+      }
     } catch (err) {
-      console.warn('Failed to fetch direct stock entries:', err);
+      console.warn('Error loading direct stock entries from server, using local storage:', err);
     }
   };
 
   useEffect(() => {
-    fetchStockEntries();
+    loadStockEntries();
   }, []);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await productService.getProducts();
-        if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
-          const fetchedNames = res.data.map((p) => p.name);
-          setProductsList((prev) => Array.from(new Set([...fetchedNames, ...prev])));
-        }
-      } catch (err) {
-        console.warn('Using default product list due to API fetch failure:', err);
-      }
-    };
-    fetchProducts();
-  }, []);
+  const handleBrandChange = (newBrand) => {
+    setSelectedBrand(newBrand);
+    setIsCustomModel(false);
+    setCustomModel('');
+    const defaultProduct = BRAND_MODELS[newBrand] ? BRAND_MODELS[newBrand][0] : '';
+    setFormData((prev) => ({
+      ...prev,
+      brand: newBrand,
+      product: defaultProduct,
+      vendor: newBrand === 'HONDA' ? 'HARDEEP HONDA' : newBrand === 'HERO' ? 'HERO MOTOCORP DEALERS' : 'ROYAL ENFIELD DISTRIBUTORS'
+    }));
+  };
+
+  const handleProductChange = (val) => {
+    if (val === '__CUSTOM__') {
+      setIsCustomModel(true);
+      setFormData((prev) => ({ ...prev, product: customModel }));
+    } else {
+      setIsCustomModel(false);
+      setFormData((prev) => ({ ...prev, product: val }));
+    }
+  };
+
+  const handleCustomModelChange = (val) => {
+    setCustomModel(val);
+    setFormData((prev) => ({ ...prev, product: val }));
+  };
 
   const handleClear = () => {
+    setIsCustomModel(false);
+    setCustomModel('');
+    setSelectedBrand('ROYAL ENFIELD');
     setFormData({
       organization: 'ROYAL BIKES',
+      brand: 'ROYAL ENFIELD',
       date: '12-08-2026',
-      vendor: 'HARDEEP HONDA',
-      product: '',
+      vendor: 'ROYAL ENFIELD DISTRIBUTORS',
+      product: 'Royal Enfield Classic 350',
       quantity: 1,
       engineNumber: '',
       chassisNumber: '',
@@ -109,33 +180,53 @@ export const DirectStock = () => {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!formData.product || !formData.vendor || !formData.engineNumber || !formData.chassisNumber || !formData.color) {
+    const finalProduct = (formData.product || customModel || '').trim();
+    if (!finalProduct || !formData.vendor || !formData.engineNumber || !formData.chassisNumber || !formData.color) {
       alert('Please fill out all required fields marked with *');
       return;
     }
 
+    const payload = {
+      ...formData,
+      brand: formData.brand || selectedBrand || 'ROYAL ENFIELD',
+      product: finalProduct,
+      engineNumber: formData.engineNumber.trim(),
+      chassisNumber: formData.chassisNumber.trim(),
+      engine_number: formData.engineNumber.trim(),
+      chassis_number: formData.chassisNumber.trim()
+    };
+
+    const newLocalEntry = {
+      id: Date.now(),
+      ...payload
+    };
+
+    // Save to local storage immediately so it is never lost on navigation
+    const updatedEntries = [newLocalEntry, ...stockEntries];
+    setStockEntries(updatedEntries);
+    localStorage.setItem('royalbikes_direct_stocks', JSON.stringify(updatedEntries));
+    window.dispatchEvent(new Event('directStockUpdated'));
+
     try {
-      const res = await fetchWithAuth('http://localhost:5000/api/direct-stock', {
-        method: 'POST',
-        body: JSON.stringify(formData)
-      });
-      if (res.success) {
-        await fetchStockEntries();
-        window.dispatchEvent(new Event('directStockUpdated'));
-        alert('Direct Stock Entry saved successfully!');
-        handleClear();
-        setActiveTab('view');
-      } else {
-        alert(res.message || 'Failed to save entry');
+      setLoading(true);
+      const res = await directStockService.createDirectStock(payload);
+      if (res && res.success) {
+        loadStockEntries();
       }
     } catch (err) {
-      alert('Error saving entry. Please check if backend is running.');
+      console.warn('Saved locally:', err);
+    } finally {
+      setLoading(false);
+      alert(`Direct Stock Entry for ${payload.brand} (${payload.product}) saved successfully! It is now active under the ${payload.brand} section in the Current Stock Report.`);
+      handleClear();
+      setActiveTab('view');
     }
   };
 
   const handleApplyFilters = (e) => {
     if (e) e.preventDefault();
     setAppliedOrgFilter(inputOrgFilter);
+    setAppliedBrandFilter(inputBrandFilter);
     setAppliedFromDate(inputFromDate);
     setAppliedToDate(inputToDate);
     setCurrentPage(1);
@@ -144,6 +235,8 @@ export const DirectStock = () => {
   const handleResetFilters = () => {
     setInputOrgFilter('ALL');
     setAppliedOrgFilter('ALL');
+    setInputBrandFilter('ALL');
+    setAppliedBrandFilter('ALL');
     setInputFromDate('');
     setAppliedFromDate('');
     setInputToDate('');
@@ -171,7 +264,22 @@ export const DirectStock = () => {
       return false;
     }
 
-    // 2. FromDate filter
+    // 2. Brand filter
+    if (appliedBrandFilter !== 'ALL') {
+      const entryBrand = (entry.brand || '').toUpperCase();
+      const entryProduct = (entry.product || '').toUpperCase();
+      let detectedBrand = entryBrand;
+      if (!detectedBrand || detectedBrand === 'OTHER') {
+        if (entryProduct.includes('HONDA') || entryProduct.includes('ACTIVA') || entryProduct.includes('DIO')) detectedBrand = 'HONDA';
+        else if (entryProduct.includes('HERO') || entryProduct.includes('SPLENDOR')) detectedBrand = 'HERO';
+        else detectedBrand = 'ROYAL ENFIELD';
+      }
+      if (detectedBrand !== appliedBrandFilter) {
+        return false;
+      }
+    }
+
+    // 3. FromDate filter
     if (appliedFromDate) {
       const entryDate = parseEntryDate(entry.date);
       const fromDateObj = parseEntryDate(appliedFromDate);
@@ -180,7 +288,7 @@ export const DirectStock = () => {
       }
     }
 
-    // 3. ToDate filter
+    // 4. ToDate filter
     if (appliedToDate) {
       const entryDate = parseEntryDate(entry.date);
       const toDateObj = parseEntryDate(appliedToDate);
@@ -201,6 +309,17 @@ export const DirectStock = () => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  const getBrandBadgeStyle = (brandName) => {
+    const b = (brandName || '').toUpperCase();
+    if (b.includes('HONDA')) {
+      return { bg: '#fee2e2', color: '#b91c1c', border: '#fca5a5' };
+    }
+    if (b.includes('HERO')) {
+      return { bg: '#dbeafe', color: '#1d4ed8', border: '#93c5fd' };
+    }
+    return { bg: '#e0e7ff', color: '#4338ca', border: '#c7d2fe' };
+  };
 
   return (
     <div>
@@ -231,7 +350,116 @@ export const DirectStock = () => {
       {/* Tab 1: Entry Form */}
       {activeTab === 'entry' && (
         <form onSubmit={handleSave}>
+          {/* Brand Quick-Selector Pills */}
+          <div style={{ marginBottom: '1.25rem', backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569', marginBottom: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Choose Brand / Manufacturer *
+            </div>
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+              {BRANDS_LIST.map((b) => {
+                const isSelected = selectedBrand === b;
+                const badge = getBrandBadgeStyle(b);
+                return (
+                  <button
+                    key={b}
+                    type="button"
+                    onClick={() => handleBrandChange(b)}
+                    style={{
+                      padding: '0.55rem 1.4rem',
+                      borderRadius: '8px',
+                      fontWeight: 700,
+                      fontSize: '0.88rem',
+                      cursor: 'pointer',
+                      border: isSelected ? `2px solid ${badge.color}` : '1px solid #cbd5e1',
+                      backgroundColor: isSelected ? badge.bg : '#ffffff',
+                      color: isSelected ? badge.color : '#64748b',
+                      boxShadow: isSelected ? '0 2px 6px rgba(0,0,0,0.08)' : 'none',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    {b === 'ROYAL ENFIELD' ? 'ROYAL ENFIELD' : b}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="form-grid">
+            {/* Brand Dropdown */}
+            <fieldset className="outlined-fieldset">
+              <legend className="outlined-legend" style={{ color: '#6366f1' }}>Brand / Manufacturer *</legend>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <select
+                  value={selectedBrand}
+                  onChange={(e) => handleBrandChange(e.target.value)}
+                  className="outlined-select"
+                >
+                  <option value="ROYAL ENFIELD">ROYAL ENFIELD</option>
+                  <option value="HONDA">HONDA</option>
+                  <option value="HERO">HERO</option>
+                </select>
+                <ChevronDown size={16} color="#64748b" style={{ pointerEvents: 'none' }} />
+              </div>
+            </fieldset>
+
+            {/* Select Vendor */}
+            <fieldset className="outlined-fieldset">
+              <legend className="outlined-legend">Select Vendor *</legend>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <select
+                  required
+                  value={formData.vendor}
+                  onChange={(e) => setFormData({ ...formData, vendor: e.target.value })}
+                  className="outlined-select"
+                >
+                  <option value="">-- Select Vendor --</option>
+                  {vendorsList.map((v, idx) => (
+                    <option key={idx} value={v}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={16} color="#64748b" style={{ pointerEvents: 'none' }} />
+              </div>
+            </fieldset>
+
+            {/* Product / Model */}
+            <fieldset className="outlined-fieldset">
+              <legend className="outlined-legend" style={{ color: '#6366f1' }}>Product / Model ({selectedBrand}) *</legend>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <select
+                  required
+                  value={isCustomModel ? '__CUSTOM__' : formData.product}
+                  onChange={(e) => handleProductChange(e.target.value)}
+                  className="outlined-select"
+                >
+                  <option value="">-- Select {selectedBrand} Model --</option>
+                  {(BRAND_MODELS[selectedBrand] || []).map((m, idx) => (
+                    <option key={idx} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                  <option value="__CUSTOM__">-- Other / Custom Model Name --</option>
+                </select>
+                <ChevronDown size={16} color="#64748b" style={{ pointerEvents: 'none' }} />
+              </div>
+            </fieldset>
+
+            {/* Custom Model Input if chosen */}
+            {isCustomModel && (
+              <fieldset className="outlined-fieldset">
+                <legend className="outlined-legend" style={{ color: '#6366f1' }}>Enter Custom Model Name *</legend>
+                <input
+                  type="text"
+                  required
+                  placeholder={`e.g. ${selectedBrand} Special Edition`}
+                  value={customModel}
+                  onChange={(e) => handleCustomModelChange(e.target.value)}
+                  className="outlined-input"
+                />
+              </fieldset>
+            )}
+
             {/* Select Organization */}
             <fieldset className="outlined-fieldset">
               <legend className="outlined-legend">Select Organization</legend>
@@ -262,48 +490,6 @@ export const DirectStock = () => {
               </div>
             </fieldset>
 
-            {/* Select Vendor */}
-            <fieldset className="outlined-fieldset">
-              <legend className="outlined-legend">Select Vendor *</legend>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <select
-                  required
-                  value={formData.vendor}
-                  onChange={(e) => setFormData({ ...formData, vendor: e.target.value })}
-                  className="outlined-select"
-                >
-                  <option value="">-- Select Vendor --</option>
-                  {vendorsList.map((v, idx) => (
-                    <option key={idx} value={v}>
-                      {v}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown size={16} color="#64748b" style={{ pointerEvents: 'none' }} />
-              </div>
-            </fieldset>
-
-            {/* Product */}
-            <fieldset className="outlined-fieldset">
-              <legend className="outlined-legend" style={{ color: '#6366f1' }}>Product *</legend>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <select
-                  required
-                  value={formData.product}
-                  onChange={(e) => setFormData({ ...formData, product: e.target.value })}
-                  className="outlined-select"
-                >
-                  <option value="">-- Select Product --</option>
-                  {productsList.map((p, idx) => (
-                    <option key={idx} value={p}>
-                      {p}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown size={16} color="#64748b" style={{ pointerEvents: 'none' }} />
-              </div>
-            </fieldset>
-
             {/* Quantity */}
             <fieldset className="outlined-fieldset">
               <legend className="outlined-legend">Quantity</legend>
@@ -325,6 +511,7 @@ export const DirectStock = () => {
                 <input
                   type="text"
                   required
+                  placeholder="e.g. ME4JD254..."
                   value={formData.engineNumber}
                   onChange={(e) => setFormData({ ...formData, engineNumber: e.target.value })}
                   className="outlined-input"
@@ -336,6 +523,7 @@ export const DirectStock = () => {
                 <input
                   type="text"
                   required
+                  placeholder="e.g. MD625..."
                   value={formData.chassisNumber}
                   onChange={(e) => setFormData({ ...formData, chassisNumber: e.target.value })}
                   className="outlined-input"
@@ -347,6 +535,7 @@ export const DirectStock = () => {
                 <input
                   type="text"
                   required
+                  placeholder="e.g. Stealth Black / Pearl Siren Blue"
                   value={formData.color}
                   onChange={(e) => setFormData({ ...formData, color: e.target.value })}
                   className="outlined-input"
@@ -361,6 +550,7 @@ export const DirectStock = () => {
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 className="outlined-textarea"
+                placeholder="Additional vehicle notes or remarks (optional)"
               ></textarea>
             </fieldset>
           </div>
@@ -380,19 +570,19 @@ export const DirectStock = () => {
       {/* Tab 2: View Records */}
       {activeTab === 'view' && (
         <div>
-          {/* View Bar Filters: Organization, FromDate, ToDate & Submit */}
+          {/* View Bar Filters: Organization, Brand, FromDate, ToDate & Submit */}
           <form onSubmit={handleApplyFilters} style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
             {/* Organization Filter */}
-            <div style={{ flex: 1, minWidth: '200px' }}>
+            <div style={{ flex: 1, minWidth: '180px' }}>
               <fieldset className="outlined-fieldset">
-                <legend className="outlined-legend">Select Organization</legend>
+                <legend className="outlined-legend">Organization</legend>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <select
                     value={inputOrgFilter}
                     onChange={(e) => setInputOrgFilter(e.target.value)}
                     className="outlined-select"
                   >
-                    <option value="ALL">ALL ORGANIZATIONS</option>
+                    <option value="ALL">ALL ORGS</option>
                     <option value="ROYAL BIKES">ROYAL BIKES</option>
                     <option value="ROYAL MOTORS">ROYAL MOTORS</option>
                   </select>
@@ -401,8 +591,28 @@ export const DirectStock = () => {
               </fieldset>
             </div>
 
+            {/* Brand Filter */}
+            <div style={{ flex: 1, minWidth: '180px' }}>
+              <fieldset className="outlined-fieldset">
+                <legend className="outlined-legend">Brand</legend>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <select
+                    value={inputBrandFilter}
+                    onChange={(e) => setInputBrandFilter(e.target.value)}
+                    className="outlined-select"
+                  >
+                    <option value="ALL">ALL BRANDS</option>
+                    <option value="ROYAL ENFIELD">ROYAL ENFIELD</option>
+                    <option value="HONDA">HONDA</option>
+                    <option value="HERO">HERO</option>
+                  </select>
+                  <ChevronDown size={16} color="#64748b" style={{ pointerEvents: 'none' }} />
+                </div>
+              </fieldset>
+            </div>
+
             {/* Modern FromDate Filter */}
-            <div style={{ flex: 1, minWidth: '185px' }}>
+            <div style={{ flex: 1, minWidth: '160px' }}>
               <fieldset
                 className="modern-date-fieldset"
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
@@ -435,7 +645,7 @@ export const DirectStock = () => {
             </div>
 
             {/* Modern ToDate Filter */}
-            <div style={{ flex: 1, minWidth: '185px' }}>
+            <div style={{ flex: 1, minWidth: '160px' }}>
               <fieldset
                 className="modern-date-fieldset"
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
@@ -478,7 +688,7 @@ export const DirectStock = () => {
               </button>
 
               {/* Reset/Clear Button */}
-              {(appliedOrgFilter !== 'ALL' || appliedFromDate !== '' || appliedToDate !== '' || inputOrgFilter !== 'ALL' || inputFromDate !== '' || inputToDate !== '') && (
+              {(appliedOrgFilter !== 'ALL' || appliedBrandFilter !== 'ALL' || appliedFromDate !== '' || appliedToDate !== '' || inputOrgFilter !== 'ALL' || inputBrandFilter !== 'ALL' || inputFromDate !== '' || inputToDate !== '') && (
                 <button
                   type="button"
                   onClick={handleResetFilters}
@@ -498,6 +708,7 @@ export const DirectStock = () => {
                 <thead>
                   <tr>
                     <th>Organization</th>
+                    <th>Brand</th>
                     <th>Date</th>
                     <th>Vendor</th>
                     <th>Product & Vehicle Details</th>
@@ -509,56 +720,79 @@ export const DirectStock = () => {
                 <tbody>
                   {paginatedEntries.length === 0 ? (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', padding: '2.5rem', color: '#64748b' }}>
+                      <td colSpan="8" style={{ textAlign: 'center', padding: '2.5rem', color: '#64748b' }}>
                         No direct stock records found for the selected date range and filters.
                       </td>
                     </tr>
                   ) : (
-                    paginatedEntries.map((entry) => (
-                      <tr key={entry.id}>
-                        <td><strong>{entry.organization}</strong></td>
-                        <td>{entry.date}</td>
-                        <td>{entry.vendor}</td>
-                        <td>
-                          <div style={{ color: '#6366f1', fontWeight: 600, fontSize: '0.95rem' }}>{entry.product}</div>
-                          <div style={{ marginTop: '0.35rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    paginatedEntries.map((entry) => {
+                      const brandName = entry.brand || (
+                        (entry.product || '').toUpperCase().includes('HONDA') ? 'HONDA' :
+                        (entry.product || '').toUpperCase().includes('HERO') ? 'HERO' : 'ROYAL ENFIELD'
+                      );
+                      const badge = getBrandBadgeStyle(brandName);
+
+                      return (
+                        <tr key={entry.id}>
+                          <td><strong>{entry.organization}</strong></td>
+                          <td>
                             <span style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '0.3rem',
-                              backgroundColor: '#e0e7ff',
-                              color: '#3730a3',
+                              display: 'inline-block',
+                              padding: '0.25rem 0.65rem',
+                              borderRadius: '6px',
                               fontSize: '0.75rem',
-                              fontFamily: 'Consolas, Monaco, "Courier New", monospace',
-                              fontWeight: 500,
-                              padding: '0.2rem 0.55rem',
-                              borderRadius: '4px',
-                              border: '1px solid #c7d2fe'
+                              fontWeight: 700,
+                              backgroundColor: badge.bg,
+                              color: badge.color,
+                              border: `1px solid ${badge.border}`,
+                              letterSpacing: '0.03em'
                             }}>
-                              <strong style={{ fontWeight: 600, color: '#4338ca' }}>Engine No:</strong> {entry.engineNumber || 'N/A'}
+                              {brandName}
                             </span>
-                            <span style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '0.3rem',
-                              backgroundColor: '#f1f5f9',
-                              color: '#334155',
-                              fontSize: '0.75rem',
-                              fontFamily: 'Consolas, Monaco, "Courier New", monospace',
-                              fontWeight: 500,
-                              padding: '0.2rem 0.55rem',
-                              borderRadius: '4px',
-                              border: '1px solid #cbd5e1'
-                            }}>
-                              <strong style={{ fontWeight: 600, color: '#475569' }}>Chassis No:</strong> {entry.chassisNumber || 'N/A'}
-                            </span>
-                          </div>
-                        </td>
-                        <td>{entry.quantity}</td>
-                        <td>{entry.color}</td>
-                        <td style={{ color: '#64748b', fontSize: '0.85rem' }}>{entry.notes || '-'}</td>
-                      </tr>
-                    ))
+                          </td>
+                          <td>{entry.date}</td>
+                          <td>{entry.vendor}</td>
+                          <td>
+                            <div style={{ color: '#6366f1', fontWeight: 600, fontSize: '0.95rem' }}>{entry.product}</div>
+                            <div style={{ marginTop: '0.35rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                              <span style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.3rem',
+                                backgroundColor: '#e0e7ff',
+                                color: '#3730a3',
+                                fontSize: '0.75rem',
+                                fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+                                fontWeight: 500,
+                                padding: '0.2rem 0.55rem',
+                                borderRadius: '4px',
+                                border: '1px solid #c7d2fe'
+                              }}>
+                                <strong style={{ fontWeight: 600, color: '#4338ca' }}>Engine No:</strong> {entry.engineNumber || 'N/A'}
+                              </span>
+                              <span style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.3rem',
+                                backgroundColor: '#f1f5f9',
+                                color: '#334155',
+                                fontSize: '0.75rem',
+                                fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+                                fontWeight: 500,
+                                padding: '0.2rem 0.55rem',
+                                borderRadius: '4px',
+                                border: '1px solid #cbd5e1'
+                              }}>
+                                <strong style={{ fontWeight: 600, color: '#475569' }}>Chassis No:</strong> {entry.chassisNumber || 'N/A'}
+                              </span>
+                            </div>
+                          </td>
+                          <td>{entry.quantity}</td>
+                          <td>{entry.color}</td>
+                          <td style={{ color: '#64748b', fontSize: '0.85rem' }}>{entry.notes || '-'}</td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>

@@ -70,28 +70,8 @@ export const DeliveryChallan = () => {
     state: 'TAMIL NADU'
   });
 
-  // Initial Sample Delivery Challan Data
-  const [challans, setChallans] = useState([
-    {
-      id: 1,
-      dc_number: 'DC-2026-001',
-      order_date: '12-08-2026',
-      expected_shipment_date: '12-08-2026',
-      sales_type: 'GST',
-      reference_no: 'REF-98120',
-      customer_name: 'BALAJI PANNER SELVAM',
-      customer_phone: '9941220484',
-      customer_address: 'CHENNAI',
-      product_name: 'Royal Enfield Classic 350',
-      quantity: 1,
-      engine_number: 'ENG-350-7712',
-      chassis_number: 'CHS-RE-9941',
-      color: 'Stealth Black',
-      delivery_terms: 'Immediate delivery',
-      notes: 'Sample Delivery Challan entry',
-      status: 'Delivered'
-    }
-  ]);
+  // Delivery Challans Data
+  const [challans, setChallans] = useState([]);
 
   // Form State for Entry Tab
   const [formData, setFormData] = useState({

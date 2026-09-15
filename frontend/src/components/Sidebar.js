@@ -80,16 +80,36 @@ export const Sidebar = () => {
         </NavLink>
 
         <div className="sidebar-section-title">Sales</div>
-        <NavLink 
-          to="/booking-order" 
-          className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
-        >
-          <div className="sidebar-nav-item-left">
-            <FileText size={16} />
-            <span>Booking Order</span>
+        
+        {/* Booking Order Submenu Accordion */}
+        <div className="sidebar-accordion">
+          <NavLink 
+            to="/booking-order" 
+            className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
+          >
+            <div className="sidebar-nav-item-left">
+              <FileText size={16} />
+              <span>Booking Order</span>
+            </div>
+            <ChevronDown size={14} />
+          </NavLink>
+          <div style={{ paddingLeft: '2.2rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.2rem', marginBottom: '0.5rem' }}>
+            <NavLink 
+              to="/booking-order/entry" 
+              className={({ isActive }) => `sidebar-subnav-item ${isActive ? 'active' : ''}`}
+              style={{ fontSize: '0.84rem', color: '#94a3b8', padding: '0.35rem 0.75rem', borderRadius: '4px', textDecoration: 'none' }}
+            >
+              Entry
+            </NavLink>
+            <NavLink 
+              to="/booking-order/view" 
+              className={({ isActive }) => `sidebar-subnav-item ${isActive ? 'active' : ''}`}
+              style={{ fontSize: '0.84rem', color: '#94a3b8', padding: '0.35rem 0.75rem', borderRadius: '4px', textDecoration: 'none' }}
+            >
+              View
+            </NavLink>
           </div>
-          <ChevronRight size={14} />
-        </NavLink>
+        </div>
 
         <NavLink 
           to="/receipt" 

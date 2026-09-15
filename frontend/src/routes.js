@@ -6,6 +6,7 @@ import { Receipt } from './pages/Receipt';
 import { VoucherEntry } from './pages/VoucherEntry';
 import { RtnPayment } from './pages/RtnPayment';
 import { DeliveryChallan } from './pages/DeliveryChallan';
+import { BookingOrder } from './pages/BookingOrder';
 import { CurrentStockReport } from './pages/CurrentStockReport';
 import { DayBookReport } from './pages/DayBookReport';
 import { Analytics } from './pages/Analytics';
@@ -39,7 +40,9 @@ export const AppRoutes = () => {
         <Route path="/direct-stock" element={<DirectStock />} />
         <Route path="/analytics" element={<Analytics />} />
 
-        <Route path="/booking-order" element={<ModuleView title="Booking Order" />} />
+        <Route path="/booking-order" element={<BookingOrder />} />
+        <Route path="/booking-order/entry" element={<BookingOrder />} />
+        <Route path="/booking-order/view" element={<BookingOrder />} />
         <Route path="/receipt" element={<Receipt />} />
         <Route path="/voucher-entry" element={<VoucherEntry />} />
         <Route path="/rtn-payment" element={<RtnPayment />} />

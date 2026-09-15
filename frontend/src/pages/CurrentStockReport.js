@@ -7,23 +7,102 @@ export const CurrentStockReport = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [stockData, setStockData] = useState({});
 
+  const groupStockEntries = (entries) => {
+    const grouped = {};
+    entries.forEach((item) => {
+      const model = (item.product || item.model || '').trim();
+      const vendor = (item.vendor || '').trim();
+      const color = (item.color || '').trim();
+      const engine_no = (item.engineNumber || item.engine_number || '').trim();
+      const chassis_no = (item.chassisNumber || item.chassis_number || '').trim();
+
+      const raw_brand = (item.brand || '').trim().toUpperCase();
+      const model_upper = model.toUpperCase();
+      const vendor_upper = vendor.toUpperCase();
+
+      let brand = 'OTHER';
+      if (raw_brand && ['HONDA', 'HERO', 'ROYAL ENFIELD', 'YAMAHA', 'TVS', 'SUZUKI', 'BAJAJ'].includes(raw_brand)) {
+        brand = raw_brand;
+      } else if (model_upper.includes('HONDA') || vendor_upper.includes('HONDA') || model_upper.includes('DIO') || model_upper.includes('ACTIVA')) {
+        brand = 'HONDA';
+      } else if (model_upper.includes('HERO') || vendor_upper.includes('HERO') || model_upper.includes('SPLENDOR') || model_upper.includes('HF DELUXE')) {
+        brand = 'HERO';
+      } else if (
+        ['ROYAL ENFIELD', 'CLASSIC', 'HUNTER', 'METEOR', 'BULLET', 'HIMALAYAN', 'INTERCEPTOR', 'CONTINENTAL', 'GUERRILLA', 'SHOTGUN'].some((k) => model_upper.includes(k)) ||
+        vendor_upper.includes('ENFIELD')
+      ) {
+        brand = 'ROYAL ENFIELD';
+      } else if (model_upper.includes('YAMAHA') || vendor_upper.includes('YAMAHA')) {
+        brand = 'YAMAHA';
+      } else if (model_upper.includes('TVS') || vendor_upper.includes('TVS')) {
+        brand = 'TVS';
+      } else if (model_upper.includes('SUZUKI') || vendor_upper.includes('SUZUKI')) {
+        brand = 'SUZUKI';
+      } else if (model_upper.includes('BAJAJ') || vendor_upper.includes('BAJAJ')) {
+        brand = 'BAJAJ';
+      } else if (raw_brand) {
+        brand = raw_brand;
+      } else {
+        brand = vendor_upper && vendor_upper !== 'ALL' ? vendor_upper : 'OTHER';
+      }
+
+      if (!grouped[brand]) grouped[brand] = [];
+      grouped[brand].push({
+        model,
+        color,
+        engine_number: engine_no,
+        chassis_number: chassis_no,
+        vendor,
+        date: item.date
+      });
+    });
+
+    const ordered = {};
+    ['HONDA', 'HERO', 'ROYAL ENFIELD'].forEach((b) => {
+      if (grouped[b]) ordered[b] = grouped[b];
+    });
+    Object.keys(grouped).forEach((b) => {
+      if (!ordered[b]) ordered[b] = grouped[b];
+    });
+    return ordered;
+  };
+
   const loadStockReport = async () => {
     try {
       const res = await reportService.getCurrentStockReport({ as_on_date: asOnDate, search: searchQuery });
-      if (res.success && res.data) setStockData(res.data);
+      if (res && res.success && res.data && Object.keys(res.data).length > 0) {
+        setStockData(res.data);
+        return;
+      }
     } catch (err) {
-      console.warn('Failed to load stock report:', err);
+      console.warn('API fetch returned error, fallback to local storage:', err);
     }
+
+    // Fallback/Merge with stored Direct Stock entries
+    try {
+      const stored = localStorage.getItem('royalbikes_direct_stocks');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setStockData(groupStockEntries(parsed));
+          return;
+        }
+      }
+    } catch (e) {}
   };
 
   useEffect(() => {
     loadStockReport();
 
+    // Re-fetch automatically whenever direct stock is updated in another tab or page
     const handleUpdate = () => loadStockReport();
     window.addEventListener('directStockUpdated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
     window.addEventListener('focus', handleUpdate);
+
     return () => {
       window.removeEventListener('directStockUpdated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
       window.removeEventListener('focus', handleUpdate);
     };
   }, [asOnDate, searchQuery]);
@@ -105,15 +184,16 @@ export const CurrentStockReport = () => {
 
       {/* Brand Stock Tables */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-        {Object.keys(stockData).length === 0 && (
-          <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b', fontSize: '0.95rem' }}>
-            No stock entries found. Add products via Direct Stock.
+        {Object.keys(stockData).length === 0 ? (
+          <div className="table-card" style={{ padding: '3rem 1.5rem', textAlign: 'center', color: '#94a3b8' }}>
+            <FileText size={36} color="#cbd5e1" style={{ margin: '0 auto 0.75rem', display: 'block' }} />
+            <div style={{ fontSize: '1rem', fontWeight: 600, color: '#64748b' }}>No vehicles in Current Stock</div>
+            <div style={{ fontSize: '0.85rem', marginTop: '0.25rem' }}>Enter new vehicles in <strong>Direct-Stock</strong> to view live inventory here.</div>
           </div>
-        )}
-
-        {Object.entries(stockData).map(([brand, items]) => {
-          const filteredItems = items.filter((item) =>
-            !searchQuery ||
+        ) : (
+          Object.entries(stockData).map(([brand, items]) => {
+          const filteredItems = items.filter((item) => 
+            !searchQuery || 
             item.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.color.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.engine_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -196,7 +276,7 @@ export const CurrentStockReport = () => {
               </div>
             </div>
           );
-        })}
+        }))}
       </div>
 
       {/* Page Bottom Footer Banner */}
