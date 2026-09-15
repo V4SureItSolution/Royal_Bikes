@@ -13,6 +13,7 @@ import {
 import { receiptService } from '../services/receiptService';
 import { customerService } from '../services/customerService';
 import { CustomerSearchSelect } from '../components/CustomerSearchSelect';
+import { getTodayDateStr } from '../utils/dateUtils';
 
 // Helper to convert number to words
 const numberToWords = (num) => {
@@ -53,7 +54,7 @@ export const Receipt = () => {
   const [formData, setFormData] = useState({
     account_code: '',
     customer_name: '',
-    receipt_date: '12-08-2026',
+    receipt_date: getTodayDateStr(),
     amount: '0',
     payment_type: '',
     note: ''
@@ -61,8 +62,8 @@ export const Receipt = () => {
 
   // Filter & Search State for View Tab
   const [filters, setFilters] = useState({
-    fromDate: '12-08-2026',
-    toDate: '12-08-2026'
+    fromDate: getTodayDateStr(),
+    toDate: getTodayDateStr()
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -109,7 +110,7 @@ export const Receipt = () => {
     setFormData({
       account_code: '',
       customer_name: '',
-      receipt_date: '12-08-2026',
+      receipt_date: getTodayDateStr(),
       amount: '0',
       payment_type: '',
       note: ''
@@ -131,7 +132,7 @@ export const Receipt = () => {
     const newEntry = {
       account_code: formData.account_code || '2917',
       customer_name: formData.customer_name.toUpperCase(),
-      receipt_date: formData.receipt_date || '12-08-2026',
+      receipt_date: formData.receipt_date || getTodayDateStr(),
       amount: parseFloat(formData.amount) || 0,
       payment_type: formData.payment_type,
       note: formData.note.trim() || '-',
@@ -140,6 +141,7 @@ export const Receipt = () => {
     };
 
     try {
+      setLoading(true);
       const res = await receiptService.createReceipt(newEntry);
       if (res.success && res.data) {
         setReceipts((prev) => [res.data, ...prev]);
@@ -148,6 +150,8 @@ export const Receipt = () => {
       }
     } catch (err) {
       setReceipts((prev) => [{ id: Date.now(), ...newEntry }, ...prev]);
+    } finally {
+      setLoading(false);
     }
 
     setSuccessMessage(`Receipt #${newEntry.receipt_no} created successfully!`);
@@ -314,8 +318,8 @@ export const Receipt = () => {
 
             {/* Action Buttons */}
             <div className="form-actions-row" style={{ justifyContent: 'center', marginTop: '1rem' }}>
-              <button type="submit" className="btn-save-pill" style={{ minWidth: '120px' }}>
-                Submit
+              <button type="submit" className="btn-save-pill" style={{ minWidth: '120px' }} disabled={loading}>
+                {loading ? 'Submitting...' : 'Submit'}
               </button>
               <button type="button" onClick={handleClear} className="btn-clear-link">
                 Cancel

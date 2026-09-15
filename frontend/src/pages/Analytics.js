@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Mail, Phone, CheckCircle2, RotateCw, Home, Layers, ShoppingBag, TrendingUp, CreditCard } from 'lucide-react';
+import { Mail, Phone, CheckCircle2, RotateCw, Home } from 'lucide-react';
 import { reportService } from '../services/reportService';
 
 export const Analytics = () => {

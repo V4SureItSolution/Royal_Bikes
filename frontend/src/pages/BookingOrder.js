@@ -16,12 +16,12 @@ import {
   Building2,
   Crosshair,
   Navigation,
-  CreditCard,
   Trash2,
   RotateCcw
 } from 'lucide-react';
 import { bookingOrderService } from '../services/bookingOrderService';
 import { customerService } from '../services/customerService';
+import { getTodayDateStr, getFutureDateStr, getCurrentYear } from '../utils/dateUtils';
 
 const INDIAN_STATES = [
   'TAMIL NADU',
@@ -101,8 +101,8 @@ export const BookingOrder = () => {
     model_name: 'Royal Enfield Classic 350',
     color: 'Stealth Black',
     variant: 'Dual Channel ABS',
-    booking_date: '12-08-2026',
-    expected_delivery_date: '25-08-2026',
+    booking_date: getTodayDateStr(),
+    expected_delivery_date: getFutureDateStr(12),
     total_amount: '225000',
     booking_amount: '25000',
     balance_amount: '200000',
@@ -196,10 +196,13 @@ export const BookingOrder = () => {
         }, 1200);
       } else {
         // Fallback local save
+        const currentYr = getCurrentYear();
         const fallbackOrder = {
           ...formData,
           id: Date.now(),
-          booking_no: `BK-2026-${String(bookingOrders.length + 1).padStart(3, '0')}`,
+          booking_no: `BK-${currentYr}-${String(bookingOrders.length + 1).padStart(3, '0')}`,
+          booking_date: formData.booking_date || getTodayDateStr(),
+          expected_delivery_date: formData.expected_delivery_date || getFutureDateStr(12),
           total_amount: parseFloat(formData.total_amount) || 0,
           booking_amount: parseFloat(formData.booking_amount) || 0,
           balance_amount: parseFloat(formData.balance_amount) || 0
@@ -213,10 +216,13 @@ export const BookingOrder = () => {
         }, 1200);
       }
     } catch (err) {
+      const currentYr = getCurrentYear();
       const fallbackOrder = {
         ...formData,
         id: Date.now(),
-        booking_no: `BK-2026-${String(bookingOrders.length + 1).padStart(3, '0')}`,
+        booking_no: `BK-${currentYr}-${String(bookingOrders.length + 1).padStart(3, '0')}`,
+        booking_date: formData.booking_date || getTodayDateStr(),
+        expected_delivery_date: formData.expected_delivery_date || getFutureDateStr(12),
         total_amount: parseFloat(formData.total_amount) || 0,
         booking_amount: parseFloat(formData.booking_amount) || 0,
         balance_amount: parseFloat(formData.balance_amount) || 0
@@ -247,8 +253,8 @@ export const BookingOrder = () => {
       model_name: 'Royal Enfield Classic 350',
       color: 'Stealth Black',
       variant: 'Dual Channel ABS',
-      booking_date: '12-08-2026',
-      expected_delivery_date: '25-08-2026',
+      booking_date: getTodayDateStr(),
+      expected_delivery_date: getFutureDateStr(12),
       total_amount: '225000',
       booking_amount: '25000',
       balance_amount: '200000',

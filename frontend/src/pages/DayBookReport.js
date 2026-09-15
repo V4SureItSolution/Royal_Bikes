@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { Home, Calendar, ShoppingBag } from 'lucide-react';
 import { reportService } from '../services/reportService';
+import { getTodayDateStr } from '../utils/dateUtils';
 
 export const DayBookReport = () => {
   const [organization, setOrganization] = useState('ROYAL BIKES');
-  const [fromDate, setFromDate] = useState('12-08-2026');
-  const [toDate, setToDate] = useState('12-08-2026');
+  const [fromDate, setFromDate] = useState(getTodayDateStr);
+  const [toDate, setToDate] = useState(getTodayDateStr);
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);

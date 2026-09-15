@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { CheckCircle2, User, Phone, Mail, MapPin, Target, Building, X, Plus } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { CheckCircle2, User, Phone, Mail, MapPin, Target, Building, X } from 'lucide-react';
 import { customerService } from '../services/customerService';
 
 export const CustomerSearchSelect = ({ 
@@ -11,17 +11,16 @@ export const CustomerSearchSelect = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [internalList, setInternalList] = useState(() => customerService.getStoredCustomers());
-  const [searchQuery, setSearchQuery] = useState('');
 
   const activeCustomerList = propCustomerList && propCustomerList.length > 0 ? propCustomerList : internalList;
 
-  const loadCustomers = async () => {
+  const loadCustomers = useCallback(async () => {
     const list = await customerService.getAllCustomers();
     setInternalList(list);
     if (propSetCustomerList) {
       propSetCustomerList(list);
     }
-  };
+  }, [propSetCustomerList]);
 
   useEffect(() => {
     loadCustomers();
@@ -34,7 +33,7 @@ export const CustomerSearchSelect = ({
       window.removeEventListener('customerUpdated', handleUpdate);
       window.removeEventListener('storage', handleUpdate);
     };
-  }, []);
+  }, [loadCustomers]);
 
   const [form, setForm] = useState({
     firstName: '',

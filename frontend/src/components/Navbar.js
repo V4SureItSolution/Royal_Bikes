@@ -20,9 +20,7 @@ import {
   Info,
   Clock,
   Trash2,
-  BookmarkCheck,
-  Check,
-  ExternalLink
+  Check
 } from 'lucide-react';
 import { customerService } from '../services/customerService';
 

@@ -14,9 +14,7 @@ import {
   User,
   Tag,
   FileSpreadsheet,
-  BookOpen,
   LogOut,
-  Shield,
   Settings,
   X
 } from 'lucide-react';

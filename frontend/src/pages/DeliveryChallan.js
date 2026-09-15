@@ -17,11 +17,11 @@ import {
   MapPin,
   Target,
   Building,
-  PlusCircle,
-  UserCheck
+  Trash2
 } from 'lucide-react';
 import { deliveryChallanService } from '../services/deliveryChallanService';
 import { customerService } from '../services/customerService';
+import { getTodayDateStr, getFutureDateStr, getCurrentYear } from '../utils/dateUtils';
 
 export const DeliveryChallan = () => {
   const location = useLocation();
@@ -76,8 +76,8 @@ export const DeliveryChallan = () => {
 
   // Form State for Entry Tab
   const [formData, setFormData] = useState({
-    order_date: '12-08-2026',
-    expected_shipment_date: '12-08-2026',
+    order_date: getTodayDateStr(),
+    expected_shipment_date: getFutureDateStr(3),
     sales_type: 'GST',
     reference_no: '',
     customer_name: '',
@@ -94,8 +94,8 @@ export const DeliveryChallan = () => {
 
   // Filter & Search State for View Tab
   const [filters, setFilters] = useState({
-    fromDate: '12-08-2026',
-    toDate: '12-08-2026'
+    fromDate: getTodayDateStr(),
+    toDate: getTodayDateStr()
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -182,8 +182,8 @@ export const DeliveryChallan = () => {
 
   const handleClear = () => {
     setFormData({
-      order_date: '12-08-2026',
-      expected_shipment_date: '12-08-2026',
+      order_date: getTodayDateStr(),
+      expected_shipment_date: getFutureDateStr(3),
       sales_type: 'GST',
       reference_no: '',
       customer_name: '',
@@ -210,9 +210,12 @@ export const DeliveryChallan = () => {
       return;
     }
 
-    const nextNo = `DC-2026-${String(challans.length + 1).padStart(3, '0')}`;
+    const currentYr = getCurrentYear();
+    const nextNo = `DC-${currentYr}-${String(challans.length + 1).padStart(3, '0')}`;
     const newEntry = {
       ...formData,
+      order_date: formData.order_date || getTodayDateStr(),
+      expected_shipment_date: formData.expected_shipment_date || getFutureDateStr(3),
       dc_number: nextNo,
       status: 'Delivered'
     };
@@ -292,9 +295,10 @@ export const DeliveryChallan = () => {
             type="button" 
             onClick={handleSubmitEntry}
             className="btn-save-pill"
+            disabled={loading}
             style={{ padding: '0.6rem 2.2rem', boxShadow: '0 4px 14px rgba(99, 102, 241, 0.35)' }}
           >
-            Save
+            {loading ? 'Saving...' : 'Save'}
           </button>
         )}
       </div>
@@ -642,14 +646,24 @@ export const DeliveryChallan = () => {
                     paginatedChallans.map((row) => (
                       <tr key={row.id}>
                         <td>
-                          <button
-                            type="button"
-                            className="btn-icon-circle"
-                            title="Print Delivery Challan"
-                            onClick={() => setSelectedDcForPrint(row)}
-                          >
-                            <Printer size={18} color="#475569" />
-                          </button>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                            <button
+                              type="button"
+                              className="btn-icon-circle"
+                              title="Print Delivery Challan"
+                              onClick={() => setSelectedDcForPrint(row)}
+                            >
+                              <Printer size={18} color="#475569" />
+                            </button>
+                            <button
+                              type="button"
+                              className="btn-icon-circle"
+                              title="Delete Delivery Challan"
+                              onClick={() => handleDeleteChallan(row.id)}
+                            >
+                              <Trash2 size={16} color="#ef4444" />
+                            </button>
+                          </div>
                         </td>
                         <td style={{ fontWeight: 700, color: '#6366f1' }}>{row.dc_number}</td>
                         <td style={{ fontWeight: 600 }}>{row.customer_name}</td>

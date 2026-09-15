@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Calendar, Search, FileText, ShoppingBag } from 'lucide-react';
 import { reportService } from '../services/reportService';
+import { getTodayDateStr } from '../utils/dateUtils';
 
 export const CurrentStockReport = () => {
-  const [asOnDate, setAsOnDate] = useState('12-08-2026');
+  const [asOnDate, setAsOnDate] = useState(getTodayDateStr);
   const [searchQuery, setSearchQuery] = useState('');
   const [stockData, setStockData] = useState({});
 
@@ -67,7 +68,7 @@ export const CurrentStockReport = () => {
     return ordered;
   };
 
-  const loadStockReport = async () => {
+  const loadStockReport = useCallback(async () => {
     try {
       const res = await reportService.getCurrentStockReport({ as_on_date: asOnDate, search: searchQuery });
       if (res && res.success && res.data && Object.keys(res.data).length > 0) {
@@ -89,7 +90,7 @@ export const CurrentStockReport = () => {
         }
       }
     } catch (e) {}
-  };
+  }, [asOnDate, searchQuery]);
 
   useEffect(() => {
     loadStockReport();
@@ -105,7 +106,7 @@ export const CurrentStockReport = () => {
       window.removeEventListener('storage', handleUpdate);
       window.removeEventListener('focus', handleUpdate);
     };
-  }, [asOnDate, searchQuery]);
+  }, [loadStockReport]);
 
   return (
     <div>

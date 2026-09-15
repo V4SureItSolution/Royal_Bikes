@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FileText, Calendar, ChevronDown, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
-import { productService } from '../services/productService';
 import { directStockService } from '../services/directStockService';
+import { getTodayDateStr } from '../utils/dateUtils';
 
 const BRAND_MODELS = {
   'ROYAL ENFIELD': [
@@ -76,7 +76,7 @@ export const DirectStock = () => {
   const [formData, setFormData] = useState({
     organization: 'ROYAL BIKES',
     brand: 'ROYAL ENFIELD',
-    date: '12-08-2026',
+    date: getTodayDateStr(),
     vendor: 'ROYAL ENFIELD DISTRIBUTORS',
     product: 'Royal Enfield Classic 350',
     quantity: 1,
@@ -167,7 +167,7 @@ export const DirectStock = () => {
     setFormData({
       organization: 'ROYAL BIKES',
       brand: 'ROYAL ENFIELD',
-      date: '12-08-2026',
+      date: getTodayDateStr(),
       vendor: 'ROYAL ENFIELD DISTRIBUTORS',
       product: 'Royal Enfield Classic 350',
       quantity: 1,
@@ -562,8 +562,8 @@ export const DirectStock = () => {
 
           {/* Action Buttons */}
           <div className="form-actions-row">
-            <button type="submit" className="btn-save-pill">
-              Save
+            <button type="submit" className="btn-save-pill" disabled={loading}>
+              {loading ? 'Saving...' : 'Save'}
             </button>
             <button type="button" onClick={handleClear} className="btn-clear-link">
               Clear

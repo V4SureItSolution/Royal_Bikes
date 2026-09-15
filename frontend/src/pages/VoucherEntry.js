@@ -13,6 +13,7 @@ import {
 import { voucherService } from '../services/voucherService';
 import { customerService } from '../services/customerService';
 import { CustomerSearchSelect } from '../components/CustomerSearchSelect';
+import { getTodayDateStr } from '../utils/dateUtils';
 
 // Helper to convert number to words
 const numberToWords = (num) => {
@@ -68,7 +69,7 @@ export const VoucherEntry = () => {
   const [formData, setFormData] = useState({
     account_code: '',
     customer_name: '',
-    voucher_date: '12-08-2026',
+    voucher_date: getTodayDateStr(),
     amount: '0',
     payment_type: '',
     note: ''
@@ -76,8 +77,8 @@ export const VoucherEntry = () => {
 
   // Filter & Search State for View Tab
   const [filters, setFilters] = useState({
-    fromDate: '12-08-2026',
-    toDate: '12-08-2026'
+    fromDate: getTodayDateStr(),
+    toDate: getTodayDateStr()
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -146,7 +147,7 @@ export const VoucherEntry = () => {
     setFormData({
       account_code: '',
       customer_name: '',
-      voucher_date: '12-08-2026',
+      voucher_date: getTodayDateStr(),
       amount: '0',
       payment_type: '',
       note: ''
@@ -168,7 +169,7 @@ export const VoucherEntry = () => {
     const newEntry = {
       account_code: formData.account_code || '2852',
       customer_name: formData.customer_name.toUpperCase(),
-      voucher_date: formData.voucher_date || '12-08-2026',
+      voucher_date: formData.voucher_date || getTodayDateStr(),
       amount: parseFloat(formData.amount) || 0,
       payment_type: formData.payment_type,
       note: formData.note.trim() || '-',
@@ -177,6 +178,7 @@ export const VoucherEntry = () => {
     };
 
     try {
+      setLoading(true);
       const res = await voucherService.createVoucher(newEntry);
       if (res.success && res.data) {
         setVouchers((prev) => [res.data, ...prev]);
@@ -185,6 +187,8 @@ export const VoucherEntry = () => {
       }
     } catch (err) {
       setVouchers((prev) => [{ id: Date.now(), ...newEntry }, ...prev]);
+    } finally {
+      setLoading(false);
     }
 
     setSuccessMessage(`Voucher #${newEntry.voucher_no} created successfully!`);
@@ -364,8 +368,8 @@ export const VoucherEntry = () => {
 
             {/* Action Buttons */}
             <div className="form-actions-row" style={{ justifyContent: 'center', marginTop: '1rem' }}>
-              <button type="submit" className="btn-save-pill" style={{ minWidth: '120px' }}>
-                Submit
+              <button type="submit" className="btn-save-pill" style={{ minWidth: '120px' }} disabled={loading}>
+                {loading ? 'Submitting...' : 'Submit'}
               </button>
               <button type="button" onClick={handleClear} className="btn-clear-link">
                 Cancel
