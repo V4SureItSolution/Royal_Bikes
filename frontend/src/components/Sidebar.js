@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { 
   Search, 
   TrendingUp, 
@@ -14,24 +14,52 @@ import {
   User,
   Tag,
   FileSpreadsheet,
-  BookOpen
+  BookOpen,
+  LogOut,
+  Shield
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { RoyalBikesMark } from './RoyalBikesLogo';
 
 export const Sidebar = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef(null);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <aside className="karoda-sidebar">
       {/* Brand Header */}
       <div className="sidebar-header">
-        <NavLink to="/" className="brand-logo-wrap">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#06b6d4"/>
-            <path d="M2 17L12 22L22 17" stroke="#6366f1" strokeWidth="2" strokeLinecap="round"/>
-            <path d="M2 12L12 17L22 12" stroke="#ec4899" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-          <span>KarodaBook</span>
+        <NavLink to="/" className="brand-logo-wrap" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          <RoyalBikesMark width={34} color="#ffffff" />
+          <span style={{ 
+            fontFamily: "'Outfit', 'Inter', -apple-system, sans-serif", 
+            fontWeight: 800, 
+            letterSpacing: '1.2px',
+            fontSize: '1.2rem',
+            color: '#ffffff',
+            textTransform: 'uppercase',
+            whiteSpace: 'nowrap'
+          }}>
+            ROYAL BIKES
+          </span>
         </NavLink>
         <div style={{
           width: '16px',
@@ -207,18 +235,85 @@ export const Sidebar = () => {
         </div>
       </div>
 
-      {/* User Profile Footer */}
-      <div className="sidebar-user-footer">
-        <div className="user-avatar-wrap">
-          <div className="avatar-circle">
-            <User size={18} />
+      {/* User Profile / Admin Footer */}
+      <div style={{ position: 'relative' }} ref={userMenuRef}>
+        {showUserMenu && (
+          <div className="sidebar-user-menu-popup">
+            <div className="sidebar-user-popup-header">
+              <div className="avatar-circle" style={{ width: '36px', height: '36px' }}>
+                <User size={18} />
+              </div>
+              <div style={{ overflow: 'hidden' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>
+                  {user?.username || 'admin'}
+                </div>
+                <div style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'capitalize' }}>
+                  {user?.role || 'Administrator'}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', margin: '0.5rem 0' }} />
+
+            <button 
+              type="button" 
+              className="sidebar-user-menu-item logout-item"
+              onClick={handleLogout}
+            >
+              <LogOut size={16} />
+              <span>Sign Out</span>
+            </button>
           </div>
-          <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#ffffff' }}>
-            {user?.username || 'Product Manager'}
+        )}
+
+        <div 
+          className="sidebar-user-footer"
+          onClick={() => setShowUserMenu(!showUserMenu)}
+          style={{ cursor: 'pointer' }}
+          title="Admin Profile / Options"
+        >
+          <div className="user-avatar-wrap">
+            <div className="avatar-circle">
+              <User size={16} />
+            </div>
+            <div>
+              <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', lineHeight: 1.2 }}>
+                {user?.username || 'admin'}
+              </div>
+              <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'capitalize' }}>
+                {user?.role || 'Administrator'}
+              </div>
+            </div>
           </div>
+
+          <button 
+            type="button" 
+            className="sidebar-direct-logout"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleLogout();
+            }}
+            title="Sign Out"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#94a3b8',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '6px',
+              borderRadius: '6px',
+              transition: 'all 0.15s'
+            }}
+          >
+            <LogOut size={16} />
+          </button>
         </div>
-        <ChevronDown size={14} color="#64748b" />
       </div>
     </aside>
   );
 };
+
+export default Sidebar;
+

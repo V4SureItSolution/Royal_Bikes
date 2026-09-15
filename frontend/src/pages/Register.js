@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
-import { User, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react';
+import { User, Mail, Lock, AlertCircle, CheckCircle, ArrowRight } from 'lucide-react';
 
 export const Register = () => {
   const [formData, setFormData] = useState({ username: '', email: '', password: '', confirmPassword: '', role: 'staff' });
@@ -40,91 +40,108 @@ export const Register = () => {
 
   return (
     <div>
-      <h2 style={{ fontSize: '1.5rem', textAlign: 'center', marginBottom: '1.5rem' }}>Create Staff Account</h2>
+      <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+        <h2 className="auth-card-title">Create Account</h2>
+        <p className="auth-card-desc">Set up a staff profile for showroom access</p>
+      </div>
 
       {error && (
-        <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#f87171', padding: '0.75rem', borderRadius: '8px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.88rem' }}>
-          <AlertCircle size={18} />
-          {error}
+        <div className="auth-alert-error">
+          <AlertCircle size={18} style={{ flexShrink: 0 }} />
+          <span>{error}</span>
         </div>
       )}
 
       {success && (
-        <div style={{ background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.3)', color: '#4ade80', padding: '0.75rem', borderRadius: '8px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.88rem' }}>
-          <CheckCircle size={18} />
-          {success}
+        <div className="auth-alert-success">
+          <CheckCircle size={18} style={{ flexShrink: 0 }} />
+          <span>{success}</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Username</label>
-          <div style={{ position: 'relative' }}>
-            <User size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-subtle)' }} />
+        <div className="auth-form-group">
+          <label className="auth-label">Username</label>
+          <div className="auth-input-wrapper">
+            <User size={18} className="auth-input-icon" />
             <input
               type="text"
               required
               value={formData.username}
               onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              className="form-input"
-              style={{ paddingLeft: '2.5rem' }}
+              placeholder="e.g. john_staff"
+              className="auth-input"
             />
           </div>
         </div>
 
-        <div className="form-group">
-          <label>Email Address</label>
-          <div style={{ position: 'relative' }}>
-            <Mail size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-subtle)' }} />
+        <div className="auth-form-group">
+          <label className="auth-label">Email Address</label>
+          <div className="auth-input-wrapper">
+            <Mail size={18} className="auth-input-icon" />
             <input
               type="email"
               required
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="form-input"
-              style={{ paddingLeft: '2.5rem' }}
+              placeholder="john@royalbikes.com"
+              className="auth-input"
             />
           </div>
         </div>
 
-        <div className="form-group">
-          <label>Password</label>
-          <div style={{ position: 'relative' }}>
-            <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-subtle)' }} />
+        <div className="auth-form-group">
+          <label className="auth-label">Password</label>
+          <div className="auth-input-wrapper">
+            <Lock size={18} className="auth-input-icon" />
             <input
               type="password"
               required
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="form-input"
-              style={{ paddingLeft: '2.5rem' }}
+              placeholder="••••••••"
+              className="auth-input"
             />
           </div>
         </div>
 
-        <div className="form-group">
-          <label>Confirm Password</label>
-          <div style={{ position: 'relative' }}>
-            <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-subtle)' }} />
+        <div className="auth-form-group">
+          <label className="auth-label">Confirm Password</label>
+          <div className="auth-input-wrapper">
+            <Lock size={18} className="auth-input-icon" />
             <input
               type="password"
               required
               value={formData.confirmPassword}
               onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-              className="form-input"
-              style={{ paddingLeft: '2.5rem' }}
+              placeholder="••••••••"
+              className="auth-input"
             />
           </div>
         </div>
 
-        <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', marginTop: '1rem', padding: '0.8rem' }}>
-          {loading ? 'Creating Account...' : 'Register'}
+        <button 
+          type="submit" 
+          disabled={loading} 
+          className="auth-btn-primary"
+        >
+          {loading ? (
+            <span>Creating Account...</span>
+          ) : (
+            <>
+              <span>Complete Registration</span>
+              <ArrowRight size={16} />
+            </>
+          )}
         </button>
       </form>
 
-      <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-        Already registered? <Link to="/login" style={{ color: 'var(--accent-red)', textDecoration: 'none', fontWeight: 600 }}>Sign In</Link>
+      <div className="auth-footer-link">
+        Already registered? <Link to="/login">Sign In</Link>
       </div>
     </div>
   );
 };
+
+export default Register;
+

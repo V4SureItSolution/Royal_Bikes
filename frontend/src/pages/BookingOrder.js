@@ -21,6 +21,7 @@ import {
   RotateCcw
 } from 'lucide-react';
 import { bookingOrderService } from '../services/bookingOrderService';
+import { customerService } from '../services/customerService';
 
 const INDIAN_STATES = [
   'TAMIL NADU',
@@ -73,6 +74,15 @@ export const BookingOrder = () => {
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Customers list & auto-suggest
+  const [customerList, setCustomerList] = useState(() => customerService.getStoredCustomers());
+  const [showCustSuggest, setShowCustSuggest] = useState(false);
+
+  const loadCustomers = async () => {
+    const list = await customerService.getAllCustomers();
+    setCustomerList(list);
+  };
 
   // Booking Orders List
   const [bookingOrders, setBookingOrders] = useState([]);
@@ -127,7 +137,28 @@ export const BookingOrder = () => {
 
   useEffect(() => {
     loadBookingOrders();
+    loadCustomers();
+
+    const handleCustSync = () => loadCustomers();
+    window.addEventListener('customerUpdated', handleCustSync);
+    window.addEventListener('storage', handleCustSync);
+
+    return () => {
+      window.removeEventListener('customerUpdated', handleCustSync);
+      window.removeEventListener('storage', handleCustSync);
+    };
   }, []);
+
+  const handleSelectCustomer = (cust) => {
+    setFormData((prev) => ({
+      ...prev,
+      customer_name: cust.name,
+      contact_number: cust.mob || cust.phone || prev.contact_number,
+      town_city: cust.city || prev.town_city,
+      street_area: cust.address ? cust.address.split(',')[0] : prev.street_area
+    }));
+    setShowCustSuggest(false);
+  };
 
   // Handle Amount auto calculations
   const handleAmountChange = (field, value) => {
@@ -363,16 +394,59 @@ export const BookingOrder = () => {
                   <h3 className="booking-section-title">Customer Details</h3>
                 </div>
 
-                {/* Field 1: Name* */}
-                <div className="booking-input-wrap">
-                  <User size={16} color="#64748b" style={{ flexShrink: 0 }} />
-                  <input
-                    type="text"
-                    required
-                    placeholder="Name*"
-                    value={formData.customer_name}
-                    onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
-                  />
+                {/* Field 1: Name* with Auto-Suggest */}
+                <div style={{ position: 'relative' }}>
+                  <div className="booking-input-wrap">
+                    <User size={16} color="#64748b" style={{ flexShrink: 0 }} />
+                    <input
+                      type="text"
+                      required
+                      placeholder="Name*"
+                      value={formData.customer_name}
+                      onFocus={() => setShowCustSuggest(true)}
+                      onBlur={() => setTimeout(() => setShowCustSuggest(false), 200)}
+                      onChange={(e) => {
+                        setFormData({ ...formData, customer_name: e.target.value });
+                        setShowCustSuggest(true);
+                      }}
+                    />
+                  </div>
+
+                  {showCustSuggest && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: 0,
+                      right: 0,
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '8px',
+                      boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                      maxHeight: '200px',
+                      overflowY: 'auto',
+                      zIndex: 50,
+                      marginTop: '2px'
+                    }}>
+                      {customerList
+                        .filter((c) => !formData.customer_name || c.name.toLowerCase().includes(formData.customer_name.toLowerCase()))
+                        .map((c) => (
+                          <div
+                            key={c.id || c.name}
+                            onMouseDown={() => handleSelectCustomer(c)}
+                            style={{
+                              padding: '0.6rem 0.85rem',
+                              borderBottom: '1px solid #f1f5f9',
+                              cursor: 'pointer'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ffffff'}
+                          >
+                            <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#0f172a' }}>{c.name}</div>
+                            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>City: {c.city} • Mob: {c.mob || c.phone}</div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Field 2: S/O */}

@@ -21,6 +21,7 @@ import {
   UserCheck
 } from 'lucide-react';
 import { deliveryChallanService } from '../services/deliveryChallanService';
+import { customerService } from '../services/customerService';
 
 export const DeliveryChallan = () => {
   const location = useLocation();
@@ -46,13 +47,13 @@ export const DeliveryChallan = () => {
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Sample Customer Database for Dropdown
-  const [customerList, setCustomerList] = useState([
-    { id: 1, name: 'BALAJI PANNER SELVAM', city: 'CHENNAI', mob: '9941220484' },
-    { id: 2, name: 'G . RAMESH GANDHI', city: 'CHENNAI', mob: '9791734097' },
-    { id: 3, name: 'ARASU GOVINDHU', city: 'CHENNAI', mob: '9840897744' },
-    { id: 4, name: 'MOHAMMED SALIM K KADHAR GANI', city: 'CHENNAI', mob: '9025784525' }
-  ]);
+  // Customer List for searchable dropdown
+  const [customerList, setCustomerList] = useState(() => customerService.getStoredCustomers());
+
+  const loadCustomers = async () => {
+    const list = await customerService.getAllCustomers();
+    setCustomerList(list);
+  };
 
   // Dropdown & New Customer Modal state
   const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
@@ -120,6 +121,16 @@ export const DeliveryChallan = () => {
 
   useEffect(() => {
     loadDeliveryChallans();
+    loadCustomers();
+
+    const handleCustSync = () => loadCustomers();
+    window.addEventListener('customerUpdated', handleCustSync);
+    window.addEventListener('storage', handleCustSync);
+
+    return () => {
+      window.removeEventListener('customerUpdated', handleCustSync);
+      window.removeEventListener('storage', handleCustSync);
+    };
   }, []);
 
   const handleInputChange = (e) => {
@@ -131,28 +142,28 @@ export const DeliveryChallan = () => {
     setFormData((prev) => ({
       ...prev,
       customer_name: customer.name,
-      customer_phone: customer.mob,
-      customer_address: customer.city
+      customer_phone: customer.mob || customer.phone || '',
+      customer_address: customer.address || customer.city || ''
     }));
     setIsCustomerDropdownOpen(false);
   };
 
-  const handleCreateNewCustomer = (e) => {
+  const handleCreateNewCustomer = async (e) => {
     e.preventDefault();
     if (!newCustomerForm.firstName || !newCustomerForm.phone) {
       alert('First Name and Phone Number are required!');
       return;
     }
 
-    const fullName = `${newCustomerForm.firstName} ${newCustomerForm.lastName}`.trim().toUpperCase();
-    const createdCust = {
+    const res = await customerService.createCustomer(newCustomerForm);
+    const createdCust = res?.data || {
       id: Date.now(),
-      name: fullName,
+      name: `${newCustomerForm.firstName} ${newCustomerForm.lastName}`.trim().toUpperCase(),
       city: newCustomerForm.streetArea || newCustomerForm.flatHouseNo || 'CHENNAI',
       mob: newCustomerForm.phone
     };
 
-    setCustomerList([createdCust, ...customerList]);
+    setCustomerList((prev) => [createdCust, ...prev.filter(c => c.name !== createdCust.name)]);
     handleSelectCustomer(createdCust);
     setIsAddCustomerModalOpen(false);
     setNewCustomerForm({

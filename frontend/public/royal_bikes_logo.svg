@@ -1,0 +1,41 @@
+<svg viewBox="0 0 320 230" width="320" height="230" xmlns="http://www.w3.org/2000/svg">
+  <g fill="#0f172a" stroke="#0f172a">
+    <!-- Top Aerodynamic Bike Fairing & Handlebar Windshield -->
+    <path d="M210 52 C215 48, 235 56, 255 75 C242 78, 230 76, 218 70 C210 65, 206 58, 210 52 Z" fill="#0f172a" />
+    <path d="M250 82 C262 90, 268 98, 258 102 C242 106, 222 98, 208 90 C222 84, 238 82, 250 82 Z" fill="#0f172a" />
+    
+    <!-- Tail Cowl & Rider Seat Swoop -->
+    <path d="M38 56 C70 56, 95 72, 102 96 C86 94, 60 84, 42 70 C36 65, 34 60, 38 56 Z" fill="#0f172a" />
+
+    <!-- Main Top Body Curve Arch -->
+    <path d="M100 94 C130 68, 178 64, 215 88 C175 78, 140 86, 116 102 C108 100, 104 97, 100 94 Z" fill="#0f172a" />
+
+    <!-- Center Fuel Tank & Chassis Mid Swoop -->
+    <path d="M115 106 C145 92, 190 95, 230 114 C205 108, 168 108, 138 120 C125 116, 118 110, 115 106 Z" fill="#0f172a" />
+
+    <!-- Front Wheel / Fork Lower Dynamic Arch -->
+    <path d="M200 118 C225 114, 252 125, 266 142 C248 144, 226 138, 206 128 C202 124, 200 120, 200 118 Z" fill="#0f172a" />
+
+    <!-- Rear Wheel Lower Dynamic Arch -->
+    <path d="M48 116 C68 98, 98 100, 122 122 C98 118, 74 122, 54 136 C48 132, 46 124, 48 116 Z" fill="#0f172a" />
+
+    <!-- Mid Lower Connection Flow -->
+    <path d="M118 124 C140 134, 175 132, 202 122 C178 138, 142 140, 118 124 Z" fill="#0f172a" />
+  </g>
+
+  <!-- 'ROYAL' Main Wordmark -->
+  <text x="160" y="182" text-anchor="middle" font-family="'Times New Roman', Times, 'Cinzel', 'Playfair Display', serif" font-size="48" font-weight="900" letter-spacing="4" fill="#0f172a">
+    ROYAL
+  </text>
+
+  <!-- Left Dividing Line -->
+  <line x1="18" y1="202" x2="95" y2="202" stroke="#0f172a" stroke-width="2.5" stroke-linecap="square" />
+
+  <!-- 'BIKES' Sub-Wordmark -->
+  <text x="160" y="212" text-anchor="middle" font-family="'Times New Roman', Times, 'Cinzel', 'Playfair Display', serif" font-size="24" font-weight="900" letter-spacing="5" fill="#0f172a">
+    BIKES
+  </text>
+
+  <!-- Right Dividing Line -->
+  <line x1="225" y1="202" x2="302" y2="202" stroke="#0f172a" stroke-width="2.5" stroke-linecap="square" />
+</svg>

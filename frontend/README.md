@@ -1,6 +1,6 @@
 # RoyalBikes Frontend Application
 
-Standard React frontend for KarodaBook / RoyalBikes inventory and stock management.
+Standard React frontend for Royal Bikes showroom and inventory management.
 
 ## Available Scripts
 

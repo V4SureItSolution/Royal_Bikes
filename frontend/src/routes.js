@@ -15,7 +15,7 @@ import { Register } from './pages/Register';
 import { AuthLayout } from './layouts/AuthLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
-// Generic KarodaBook Module View Placeholder
+// Generic Royal Bikes Module View Placeholder
 const ModuleView = ({ title }) => (
   <div style={{ padding: '1rem' }}>
     <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a', marginBottom: '1rem' }}>{title}</h2>
@@ -34,26 +34,30 @@ export const AppRoutes = () => {
         <Route path="/register" element={<Register />} />
       </Route>
 
-      {/* App Main Layout Routes */}
-      <Route element={<DashboardLayout />}>
-        <Route path="/" element={<Navigate to="/delivery-challan/entry" replace />} />
-        <Route path="/direct-stock" element={<DirectStock />} />
-        <Route path="/analytics" element={<Analytics />} />
+      {/* Protected App Routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<DashboardLayout />}>
+          <Route path="/" element={<Navigate to="/analytics" replace />} />
+          <Route path="/dashboard" element={<Navigate to="/analytics" replace />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/direct-stock" element={<DirectStock />} />
 
-        <Route path="/booking-order" element={<BookingOrder />} />
-        <Route path="/booking-order/entry" element={<BookingOrder />} />
-        <Route path="/booking-order/view" element={<BookingOrder />} />
-        <Route path="/receipt" element={<Receipt />} />
-        <Route path="/voucher-entry" element={<VoucherEntry />} />
-        <Route path="/rtn-payment" element={<RtnPayment />} />
-        <Route path="/delivery-challan" element={<DeliveryChallan />} />
-        <Route path="/delivery-challan/entry" element={<DeliveryChallan />} />
-        <Route path="/delivery-challan/view" element={<DeliveryChallan />} />
-        <Route path="/current-stock-report" element={<CurrentStockReport />} />
-        <Route path="/mis-report" element={<DayBookReport />} />
-        <Route path="/day-book" element={<DayBookReport />} />
-        <Route path="*" element={<Navigate to="/delivery-challan/entry" replace />} />
+          <Route path="/booking-order" element={<BookingOrder />} />
+          <Route path="/booking-order/entry" element={<BookingOrder />} />
+          <Route path="/booking-order/view" element={<BookingOrder />} />
+          <Route path="/receipt" element={<Receipt />} />
+          <Route path="/voucher-entry" element={<VoucherEntry />} />
+          <Route path="/rtn-payment" element={<RtnPayment />} />
+          <Route path="/delivery-challan" element={<DeliveryChallan />} />
+          <Route path="/delivery-challan/entry" element={<DeliveryChallan />} />
+          <Route path="/delivery-challan/view" element={<DeliveryChallan />} />
+          <Route path="/current-stock-report" element={<CurrentStockReport />} />
+          <Route path="/mis-report" element={<DayBookReport />} />
+          <Route path="/day-book" element={<DayBookReport />} />
+          <Route path="*" element={<Navigate to="/analytics" replace />} />
+        </Route>
       </Route>
     </Routes>
   );
 };
+

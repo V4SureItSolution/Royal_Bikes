@@ -186,8 +186,12 @@ export const DirectStock = () => {
       return;
     }
 
+    const parsedQty = parseInt(formData.quantity, 10);
+    const validQuantity = !isNaN(parsedQty) && parsedQty > 0 ? parsedQty : 1;
+
     const payload = {
       ...formData,
+      quantity: validQuantity,
       brand: formData.brand || selectedBrand || 'ROYAL ENFIELD',
       product: finalProduct,
       engineNumber: formData.engineNumber.trim(),
@@ -496,8 +500,9 @@ export const DirectStock = () => {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <input
                   type="number"
+                  min="1"
                   value={formData.quantity}
-                  onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 1 })}
+                  onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
                   className="outlined-input"
                 />
                 <ChevronDown size={16} color="#64748b" />
@@ -787,7 +792,7 @@ export const DirectStock = () => {
                               </span>
                             </div>
                           </td>
-                          <td>{entry.quantity}</td>
+                          <td><strong>{entry.quantity || 1}</strong></td>
                           <td>{entry.color}</td>
                           <td style={{ color: '#64748b', fontSize: '0.85rem' }}>{entry.notes || '-'}</td>
                         </tr>

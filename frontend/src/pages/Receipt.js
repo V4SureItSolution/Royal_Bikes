@@ -11,6 +11,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { receiptService } from '../services/receiptService';
+import { customerService } from '../services/customerService';
 import { CustomerSearchSelect } from '../components/CustomerSearchSelect';
 
 // Helper to convert number to words
@@ -41,12 +42,12 @@ export const Receipt = () => {
   // Receipts Data List
   const [receipts, setReceipts] = useState([]);
 
-  const [customerList, setCustomerList] = useState([
-    { id: 1, name: 'KEERTHANA', city: 'CHENNAI', mob: '9876543210' },
-    { id: 2, name: 'BALAJI PANNER SELVAM', city: 'CHENNAI', mob: '9941220484' },
-    { id: 3, name: 'G . RAMESH GANDHI', city: 'CHENNAI', mob: '9791734097' },
-    { id: 4, name: 'SURESH KUMAR', city: 'CHENNAI', mob: '9840897744' }
-  ]);
+  const [customerList, setCustomerList] = useState(() => customerService.getStoredCustomers());
+
+  const loadCustomers = async () => {
+    const list = await customerService.getAllCustomers();
+    setCustomerList(list);
+  };
 
   // Form State for Entry Tab
   const [formData, setFormData] = useState({
@@ -87,6 +88,16 @@ export const Receipt = () => {
 
   useEffect(() => {
     loadReceipts();
+    loadCustomers();
+
+    const handleCustSync = () => loadCustomers();
+    window.addEventListener('customerUpdated', handleCustSync);
+    window.addEventListener('storage', handleCustSync);
+
+    return () => {
+      window.removeEventListener('customerUpdated', handleCustSync);
+      window.removeEventListener('storage', handleCustSync);
+    };
   }, []);
 
   const handleInputChange = (e) => {

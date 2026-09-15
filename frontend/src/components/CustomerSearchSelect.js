@@ -1,14 +1,41 @@
-import React, { useState } from 'react';
-import { CheckCircle2, User, Phone, Mail, MapPin, Target, Building, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { CheckCircle2, User, Phone, Mail, MapPin, Target, Building, X, Plus } from 'lucide-react';
+import { customerService } from '../services/customerService';
 
 export const CustomerSearchSelect = ({ 
   selectedCustomerName, 
   onSelectCustomer, 
-  customerList = [], 
-  setCustomerList 
+  customerList: propCustomerList, 
+  setCustomerList: propSetCustomerList 
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [internalList, setInternalList] = useState(() => customerService.getStoredCustomers());
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const activeCustomerList = propCustomerList && propCustomerList.length > 0 ? propCustomerList : internalList;
+
+  const loadCustomers = async () => {
+    const list = await customerService.getAllCustomers();
+    setInternalList(list);
+    if (propSetCustomerList) {
+      propSetCustomerList(list);
+    }
+  };
+
+  useEffect(() => {
+    loadCustomers();
+
+    const handleUpdate = () => loadCustomers();
+    window.addEventListener('customerUpdated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+
+    return () => {
+      window.removeEventListener('customerUpdated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
+
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -22,25 +49,26 @@ export const CustomerSearchSelect = ({
     state: 'TAMIL NADU'
   });
 
-  const handleAddCustomer = (e) => {
+  const handleAddCustomer = async (e) => {
     e.preventDefault();
     if (!form.firstName || !form.phone) {
       alert('First Name and Phone Number are required!');
       return;
     }
 
-    const fullName = `${form.firstName} ${form.lastName}`.trim().toUpperCase();
-    const cityText = form.townCity || form.streetArea || 'CHENNAI';
-    const newCust = {
+    const res = await customerService.createCustomer(form);
+    const newCust = res?.data || {
       id: Date.now(),
-      name: fullName,
-      city: cityText,
+      name: `${form.firstName} ${form.lastName}`.trim().toUpperCase(),
+      city: form.townCity || form.streetArea || 'CHENNAI',
       mob: form.phone
     };
 
-    if (setCustomerList) {
-      setCustomerList((prev) => [newCust, ...prev]);
+    if (propSetCustomerList) {
+      propSetCustomerList((prev) => [newCust, ...prev.filter(c => c.name !== newCust.name)]);
     }
+    setInternalList((prev) => [newCust, ...prev.filter(c => c.name !== newCust.name)]);
+
     onSelectCustomer(newCust);
     setIsModalOpen(false);
     setForm({
@@ -56,6 +84,7 @@ export const CustomerSearchSelect = ({
       state: 'TAMIL NADU'
     });
   };
+
 
   return (
     <div style={{ position: 'relative' }}>
@@ -115,9 +144,9 @@ export const CustomerSearchSelect = ({
           </div>
 
           {/* Customer Results */}
-          {customerList.map((cust) => (
+          {activeCustomerList.map((cust) => (
             <div
-              key={cust.id}
+              key={cust.id || cust.name}
               onClick={() => {
                 onSelectCustomer(cust);
                 setIsOpen(false);

@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Mail, Phone, CheckCircle2, MoreVertical, Home, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Mail, Phone, CheckCircle2, RotateCw, Home, Layers, ShoppingBag, TrendingUp, CreditCard } from 'lucide-react';
 import { reportService } from '../services/reportService';
 
 export const Analytics = () => {
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [data, setData] = useState({
-    stock_on_hand: 47,
+    stock_on_hand: 0,
     today_sales: '-',
     today_purchase: '-',
     today_expense: '-',
+    total_stock_count: 0,
+    total_sales_count: 0,
+    total_customers: 0,
     company_info: {
       name: 'ROYAL BIKES',
       address: '104/1, ERUKKANCHERY HIGH ROADSHARMA NAGAR, VYASARPADI,CHENNAI - 600039',
@@ -18,23 +22,62 @@ export const Analytics = () => {
     }
   });
 
-  const fetchAnalytics = async () => {
+  const getLocalStockCount = () => {
     try {
-      setLoading(true);
+      const stored = localStorage.getItem('royalbikes_direct_stocks');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed.length;
+      }
+    } catch (e) {}
+    return 0;
+  };
+
+  const fetchAnalytics = useCallback(async (isManual = false) => {
+    if (isManual) setRefreshing(true);
+    try {
       const res = await reportService.getAnalytics();
       if (res && res.success && res.data) {
-        setData(res.data);
+        const backendData = res.data;
+        const localStockCount = getLocalStockCount();
+        
+        // Ensure stock_on_hand reflects local updates if higher
+        const syncedStock = Math.max(backendData.stock_on_hand || 0, localStockCount);
+
+        setData({
+          ...backendData,
+          stock_on_hand: syncedStock
+        });
       }
     } catch (err) {
-      console.warn('Using default analytics cache:', err);
+      console.warn('Syncing with local storage fallback:', err);
+      const localStock = getLocalStockCount();
+      setData((prev) => ({
+        ...prev,
+        stock_on_hand: localStock > 0 ? localStock : prev.stock_on_hand
+      }));
     } finally {
       setLoading(false);
+      if (isManual) setTimeout(() => setRefreshing(false), 500);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchAnalytics();
-  }, []);
+
+    // Event listeners to auto-sync whenever new Direct Stock, Delivery Challan or Reports change
+    const handleSync = () => fetchAnalytics();
+
+    window.addEventListener('directStockUpdated', handleSync);
+    window.addEventListener('storage', handleSync);
+    window.addEventListener('focus', handleSync);
+
+    return () => {
+      window.removeEventListener('directStockUpdated', handleSync);
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('focus', handleSync);
+    };
+  }, [fetchAnalytics]);
 
   return (
     <div className="analytics-page-container">
@@ -53,10 +96,12 @@ export const Analytics = () => {
         <div className="analytics-header-right">
           <button 
             className="analytics-action-btn" 
-            onClick={fetchAnalytics}
-            title="Refresh Data"
+            onClick={() => fetchAnalytics(true)}
+            title="Sync & Refresh Dashboard Data"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
           >
-            <MoreVertical size={18} />
+            <RotateCw size={16} className={refreshing || loading ? 'animate-spin' : ''} />
+            <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Refresh</span>
           </button>
         </div>
       </div>
@@ -93,7 +138,7 @@ export const Analytics = () => {
         {/* Card 1: Stock on hand */}
         <div className="analytics-metric-card card-stock">
           <div className="metric-number">
-            {loading ? <RefreshCw size={28} className="animate-spin text-muted" /> : data.stock_on_hand}
+            {loading ? <RotateCw size={26} className="animate-spin text-muted" /> : data.stock_on_hand}
           </div>
           <div className="metric-label">Stock on hand</div>
         </div>
@@ -101,7 +146,7 @@ export const Analytics = () => {
         {/* Card 2: Today Sales */}
         <div className="analytics-metric-card card-sales">
           <div className="metric-number">
-            {loading ? <RefreshCw size={28} className="animate-spin text-muted" /> : data.today_sales}
+            {loading ? <RotateCw size={26} className="animate-spin text-muted" /> : data.today_sales}
           </div>
           <div className="metric-label">Today Sales</div>
         </div>
@@ -109,7 +154,7 @@ export const Analytics = () => {
         {/* Card 3: Today Purchase */}
         <div className="analytics-metric-card card-purchase">
           <div className="metric-number">
-            {loading ? <RefreshCw size={28} className="animate-spin text-muted" /> : data.today_purchase}
+            {loading ? <RotateCw size={26} className="animate-spin text-muted" /> : data.today_purchase}
           </div>
           <div className="metric-label">Today Purchase</div>
         </div>
@@ -117,7 +162,7 @@ export const Analytics = () => {
         {/* Card 4: Today Expense */}
         <div className="analytics-metric-card card-expense">
           <div className="metric-number">
-            {loading ? <RefreshCw size={28} className="animate-spin text-muted" /> : data.today_expense}
+            {loading ? <RotateCw size={26} className="animate-spin text-muted" /> : data.today_expense}
           </div>
           <div className="metric-label">Today Expense</div>
         </div>
@@ -125,3 +170,6 @@ export const Analytics = () => {
     </div>
   );
 };
+
+export default Analytics;
+

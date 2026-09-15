@@ -1,34 +1,39 @@
 import React from 'react';
 import { Outlet, Link } from 'react-router-dom';
-import { Bike } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
+import { RoyalBikesLogo } from '../components/RoyalBikesLogo';
 
 export const AuthLayout = () => {
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'radial-gradient(circle at center, #1f2937 0%, #0b0f19 100%)',
-      padding: '1.5rem'
-    }}>
-      <div style={{ width: '100%', maxWidth: '440px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.75rem' }}>
-            <Bike size={36} color="#ef4444" />
-            <span style={{ fontSize: '2rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-heading)' }}>
-              <span style={{ color: '#ef4444' }}>ROYAL</span>BIKES
-            </span>
+    <div className="auth-wrapper">
+      <div className="auth-bg-blob-1" />
+      <div className="auth-bg-blob-2" />
+
+      <div className="auth-container">
+        {/* Brand Header with Royal Bikes Logo */}
+        <div className="auth-header" style={{ marginBottom: '1.25rem' }}>
+          <Link to="/" style={{ textDecoration: 'none', display: 'inline-block' }}>
+            <RoyalBikesLogo width={180} />
           </Link>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-            Dealer & Inventory Portal Management System
+          <p className="auth-subtitle" style={{ marginTop: '0.65rem' }}>
+            Royal Bikes Showroom & Dealer Management System
           </p>
         </div>
 
-        <div className="glass-panel" style={{ padding: '2rem' }}>
+        {/* Card Component */}
+        <div className="auth-card">
           <Outlet />
+        </div>
+
+        {/* System Footer Note */}
+        <div style={{ textAlign: 'center', marginTop: '1.25rem', fontSize: '0.78rem', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }}>
+          <ShieldCheck size={14} color="#10b981" />
+          <span>Secure Enterprise Cloud Session • Version 2.3.3</span>
         </div>
       </div>
     </div>
   );
 };
+
+export default AuthLayout;
+

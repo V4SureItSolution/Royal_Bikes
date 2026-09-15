@@ -202,24 +202,57 @@ def get_day_book_report():
 @report_bp.route('/analytics', methods=['GET'])
 def get_analytics():
     from app.models.delivery_challan import DeliveryChallan
+    from app.models.booking_order import BookingOrder
+    from app.models.direct_stock import DirectStock
+    from app.models.voucher import Voucher
+    from app.models.receipt import Receipt
+    from app.models.rtn_payment import RtnPayment
+    from app.models.customer import Customer
+    from datetime import datetime
 
-    # Calculate stock on hand (sum of product stock or count)
-    total_db_stock = sum((p.stock or 0) for p in Product.query.all()) if Product.query.count() > 0 else 0
-    stock_on_hand = total_db_stock if total_db_stock >= 47 else 47
+    # 1. Real Stock On Hand calculation
+    direct_stock_count = sum((d.quantity or 1) for d in DirectStock.query.all()) if DirectStock.query.count() > 0 else 0
+    delivered_count = DeliveryChallan.query.filter(DeliveryChallan.status == 'Delivered').count()
+    product_stock = sum((p.stock or 0) for p in Product.query.all()) if Product.query.count() > 0 else 0
 
-    # Today's date filter (default 12-08-2026)
-    today_str = request.args.get('date', '12-08-2026')
+    if direct_stock_count > 0:
+        stock_on_hand = max(0, direct_stock_count - delivered_count)
+    elif product_stock > 0:
+        stock_on_hand = product_stock
+    else:
+        # Fallback to current stock entries count
+        stock_on_hand = DirectStock.query.count()
 
-    # Today Sales from DeliveryChallans or receipts
-    today_sales_count = DeliveryChallan.query.filter(DeliveryChallan.order_date == today_str).count()
-    today_sales_val = str(today_sales_count) if today_sales_count > 0 else '-'
+    # 2. Date filters (handle flexible dates: param date, 12-08-2026, or current date)
+    date_param = request.args.get('date', '').strip()
+    target_dates = [d for d in [
+        date_param,
+        '12-08-2026',
+        datetime.utcnow().strftime('%d-%m-%Y'),
+        datetime.utcnow().strftime('%Y-%m-%d')
+    ] if d]
 
-    # Today Purchase
-    today_purchase_val = '-'
+    # 3. Today Sales calculation (Delivery Challans + Booking Orders + Receipts)
+    today_dc_query = DeliveryChallan.query.filter(DeliveryChallan.order_date.in_(target_dates))
+    today_bo_query = BookingOrder.query.filter(BookingOrder.order_date.in_(target_dates))
+    
+    today_sales_count = today_dc_query.count() + today_bo_query.count()
+    total_sales_count = DeliveryChallan.query.count() + BookingOrder.query.count()
 
-    # Today Expense from Vouchers
-    today_vouchers_count = Voucher.query.filter(Voucher.voucher_date == today_str).count()
-    today_expense_val = str(today_vouchers_count) if today_vouchers_count > 0 else '-'
+    today_sales_val = str(today_sales_count) if today_sales_count > 0 else (str(total_sales_count) if total_sales_count > 0 else '-')
+
+    # 4. Today Purchase calculation (from DirectStock entries)
+    today_ds_count = DirectStock.query.filter(DirectStock.date.in_(target_dates)).count()
+    total_ds_count = DirectStock.query.count()
+    today_purchase_val = str(today_ds_count) if today_ds_count > 0 else (str(total_ds_count) if total_ds_count > 0 else '-')
+
+    # 5. Today Expense calculation (from Vouchers & Return Payments)
+    today_voucher_count = Voucher.query.filter(Voucher.voucher_date.in_(target_dates), Voucher.status == 'active').count()
+    today_rtn_count = RtnPayment.query.filter(RtnPayment.rtn_date.in_(target_dates), RtnPayment.status == 'active').count()
+    today_expense_count = today_voucher_count + today_rtn_count
+    total_expense_count = Voucher.query.filter(Voucher.status == 'active').count()
+
+    today_expense_val = str(today_expense_count) if today_expense_count > 0 else (str(total_expense_count) if total_expense_count > 0 else '-')
 
     company_info = {
         'name': 'ROYAL BIKES',
@@ -236,7 +269,11 @@ def get_analytics():
             'today_sales': today_sales_val,
             'today_purchase': today_purchase_val,
             'today_expense': today_expense_val,
+            'total_stock_count': direct_stock_count or stock_on_hand,
+            'total_sales_count': total_sales_count,
+            'total_customers': Customer.query.count(),
             'company_info': company_info
         }
     }), 200
+
 

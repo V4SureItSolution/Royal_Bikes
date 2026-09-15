@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Plus, 
   Bell, 
@@ -15,7 +15,14 @@ import {
   Building2, 
   ChevronDown, 
   CheckCircle, 
-  AlertCircle 
+  AlertCircle,
+  AlertTriangle,
+  Info,
+  Clock,
+  Trash2,
+  BookmarkCheck,
+  Check,
+  ExternalLink
 } from 'lucide-react';
 import { customerService } from '../services/customerService';
 
@@ -33,12 +40,76 @@ const INDIAN_STATES = [
   'WEST BENGAL'
 ];
 
+const DEFAULT_BOOKMARKS = [
+  { id: '1', title: 'Direct Stock Entry', path: '/direct-stock' },
+  { id: '2', title: 'Delivery Challan Entry', path: '/delivery-challan/entry' },
+  { id: '3', title: 'Booking Order Entry', path: '/booking-order/entry' },
+  { id: '4', title: 'Current Stock Report', path: '/current-stock-report' },
+  { id: '5', title: 'MIS Day Book Report', path: '/day-book' }
+];
+
 export const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState(null);
+
+  // Notifications State
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      type: 'warning',
+      title: 'Low Stock Alert',
+      message: 'Honda Activa 6G STD is low on showroom stock (1 unit remaining).',
+      time: '12m ago',
+      read: false,
+      path: '/current-stock-report'
+    },
+    {
+      id: 2,
+      type: 'info',
+      title: 'Scheduled Delivery',
+      message: 'Delivery Challan DC-2026-001 is scheduled for delivery today.',
+      time: '35m ago',
+      read: false,
+      path: '/delivery-challan/view'
+    },
+    {
+      id: 3,
+      type: 'success',
+      title: 'Direct Stock Received',
+      message: 'Royal Enfield Hunter 350 batch received and verified.',
+      time: '1h ago',
+      read: false,
+      path: '/direct-stock'
+    },
+    {
+      id: 4,
+      type: 'neutral',
+      title: 'Day Book Reconciled',
+      message: 'All daily receipts and voucher balances are synchronized.',
+      time: '3h ago',
+      read: true,
+      path: '/day-book'
+    }
+  ]);
+
+  // Bookmarks State
+  const [showBookmarks, setShowBookmarks] = useState(false);
+  const [bookmarks, setBookmarks] = useState(() => {
+    try {
+      const stored = localStorage.getItem('royalbikes_bookmarks');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return DEFAULT_BOOKMARKS;
+  });
 
   const [form, setForm] = useState({
     firstName: '',
@@ -54,17 +125,82 @@ export const Navbar = () => {
   });
 
   const menuRef = useRef(null);
+  const notifRef = useRef(null);
+  const bookmarkRef = useRef(null);
 
-  // Close dropdown on click outside
+  // Close dropdowns on click outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setShowAddMenu(false);
       }
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+      if (bookmarkRef.current && !bookmarkRef.current.contains(event.target)) {
+        setShowBookmarks(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const unreadNotifCount = notifications.filter((n) => !n.read).length;
+
+  const handleMarkAllNotificationsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
+
+  const handleNotificationClick = (item) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === item.id ? { ...n, read: true } : n))
+    );
+    setShowNotifications(false);
+    if (item.path) {
+      navigate(item.path);
+    }
+  };
+
+  const handleToggleBookmarkCurrentPage = () => {
+    const currentPath = location.pathname;
+    const pathTitles = {
+      '/': 'Analytics Dashboard',
+      '/analytics': 'Analytics Dashboard',
+      '/direct-stock': 'Direct Stock Entry',
+      '/booking-order': 'Booking Order',
+      '/booking-order/entry': 'Booking Order Entry',
+      '/booking-order/view': 'Booking Order View',
+      '/receipt': 'Receipt Entry',
+      '/voucher-entry': 'Voucher Entry',
+      '/rtn-payment': 'RTN Payment',
+      '/delivery-challan': 'Delivery Challan',
+      '/delivery-challan/entry': 'Delivery Challan Entry',
+      '/delivery-challan/view': 'Delivery Challan View',
+      '/current-stock-report': 'Current Stock Report',
+      '/mis-report': 'MIS Report',
+      '/day-book': 'MIS Day Book Report'
+    };
+
+    const title = pathTitles[currentPath] || 'Showroom Page';
+    const isAlreadyBookmarked = bookmarks.some((b) => b.path === currentPath);
+
+    let updatedBookmarks;
+    if (isAlreadyBookmarked) {
+      updatedBookmarks = bookmarks.filter((b) => b.path !== currentPath);
+    } else {
+      updatedBookmarks = [{ id: Date.now().toString(), title, path: currentPath }, ...bookmarks];
+    }
+
+    setBookmarks(updatedBookmarks);
+    localStorage.setItem('royalbikes_bookmarks', JSON.stringify(updatedBookmarks));
+  };
+
+  const handleDeleteBookmark = (e, id) => {
+    e.stopPropagation();
+    const updated = bookmarks.filter((b) => b.id !== id);
+    setBookmarks(updated);
+    localStorage.setItem('royalbikes_bookmarks', JSON.stringify(updated));
+  };
 
   const handleOpenAddCustomer = () => {
     setShowAddMenu(false);
@@ -133,8 +269,11 @@ export const Navbar = () => {
     }
   };
 
+  const isCurrentPageBookmarked = bookmarks.some((b) => b.path === location.pathname);
+
   return (
     <header className="karoda-topbar">
+      {/* Add New Dropdown */}
       <div className="add-new-dropdown-container" ref={menuRef}>
         <button 
           className="btn-add-new" 
@@ -143,7 +282,6 @@ export const Navbar = () => {
           <Plus size={16} /> Add New
         </button>
 
-        {/* Dropdown Menu matching screenshot */}
         {showAddMenu && (
           <div className="add-new-menu-popup">
             <button 
@@ -164,14 +302,143 @@ export const Navbar = () => {
         )}
       </div>
 
+      {/* Right Actions: Notifications & Bookmarks */}
       <div className="topbar-right-actions">
-        <button className="topbar-icon-btn" title="Notifications">
-          <Bell size={20} />
-        </button>
-        <button className="topbar-icon-btn" title="Bookmarks">
-          <Bookmark size={20} />
-        </button>
+        {/* Notifications Button & Dropdown */}
+        <div className="topbar-action-item" ref={notifRef}>
+          <button 
+            className={`topbar-icon-btn ${showNotifications ? 'active' : ''}`} 
+            title="Notifications"
+            onClick={() => {
+              setShowNotifications(!showNotifications);
+              setShowBookmarks(false);
+            }}
+          >
+            <Bell size={20} />
+            {unreadNotifCount > 0 && (
+              <span className="topbar-badge-pill">{unreadNotifCount}</span>
+            )}
+          </button>
+
+          {showNotifications && (
+            <div className="topbar-popup-panel">
+              <div className="topbar-popup-header">
+                <div className="topbar-popup-title">
+                  <Bell size={16} color="#6366f1" />
+                  <span>Notifications</span>
+                  {unreadNotifCount > 0 && (
+                    <span style={{ fontSize: '0.72rem', background: '#e0e7ff', color: '#4338ca', padding: '0.1rem 0.45rem', borderRadius: '9999px', fontWeight: 700 }}>
+                      {unreadNotifCount} new
+                    </span>
+                  )}
+                </div>
+                {unreadNotifCount > 0 && (
+                  <button 
+                    className="topbar-popup-action-btn"
+                    onClick={handleMarkAllNotificationsRead}
+                  >
+                    Mark all as read
+                  </button>
+                )}
+              </div>
+
+              <div className="topbar-popup-list">
+                {notifications.map((item) => (
+                  <div 
+                    key={item.id} 
+                    className={`topbar-notification-item ${!item.read ? 'unread' : ''}`}
+                    onClick={() => handleNotificationClick(item)}
+                  >
+                    <div className={`notification-icon-wrap ${item.type}`}>
+                      {item.type === 'warning' && <AlertTriangle size={16} />}
+                      {item.type === 'info' && <Info size={16} />}
+                      {item.type === 'success' && <CheckCircle size={16} />}
+                      {item.type === 'neutral' && <Clock size={16} />}
+                    </div>
+                    <div className="notification-content">
+                      <div className="notification-title">{item.title}</div>
+                      <div className="notification-message">{item.message}</div>
+                      <div className="notification-time">{item.time}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Bookmarks Button & Dropdown */}
+        <div className="topbar-action-item" ref={bookmarkRef}>
+          <button 
+            className={`topbar-icon-btn ${showBookmarks ? 'active' : ''}`} 
+            title="Saved Bookmarks & Quick Links"
+            onClick={() => {
+              setShowBookmarks(!showBookmarks);
+              setShowNotifications(false);
+            }}
+          >
+            <Bookmark size={20} color={isCurrentPageBookmarked ? '#4f46e5' : undefined} fill={isCurrentPageBookmarked ? '#6366f1' : 'none'} />
+          </button>
+
+          {showBookmarks && (
+            <div className="topbar-popup-panel">
+              <div className="topbar-popup-header">
+                <div className="topbar-popup-title">
+                  <Bookmark size={16} color="#6366f1" />
+                  <span>Bookmarks & Quick Links</span>
+                </div>
+              </div>
+
+              <div className="topbar-popup-list">
+                {bookmarks.map((bm) => (
+                  <div 
+                    key={bm.id} 
+                    className="topbar-bookmark-item"
+                    onClick={() => {
+                      setShowBookmarks(false);
+                      navigate(bm.path);
+                    }}
+                  >
+                    <div className="topbar-bookmark-left">
+                      <Bookmark size={15} color="#6366f1" fill="#e0e7ff" />
+                      <span>{bm.title}</span>
+                    </div>
+                    <button 
+                      type="button" 
+                      className="topbar-bookmark-del-btn"
+                      onClick={(e) => handleDeleteBookmark(e, bm.id)}
+                      title="Remove Bookmark"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="topbar-bookmark-add-row">
+                <button 
+                  type="button" 
+                  className="topbar-bookmark-add-btn"
+                  onClick={handleToggleBookmarkCurrentPage}
+                >
+                  {isCurrentPageBookmarked ? (
+                    <>
+                      <Check size={14} />
+                      <span>Bookmarked (Click to Unpin)</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus size={14} />
+                      <span>Bookmark This Page</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
+
 
       {/* New Customer Modal (Exact UI Match) */}
       {showCustomerModal && (
