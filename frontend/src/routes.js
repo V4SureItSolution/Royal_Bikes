@@ -10,6 +10,8 @@ import { BookingOrder } from './pages/BookingOrder';
 import { CurrentStockReport } from './pages/CurrentStockReport';
 import { DayBookReport } from './pages/DayBookReport';
 import { Analytics } from './pages/Analytics';
+import { Vendor } from './pages/Vendor';
+import { AccessControl } from './pages/AccessControl';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { AuthLayout } from './layouts/AuthLayout';
@@ -53,7 +55,23 @@ export const AppRoutes = () => {
           <Route path="/current-stock-report" element={<CurrentStockReport />} />
           <Route path="/mis-report" element={<DayBookReport />} />
           <Route path="/day-book" element={<DayBookReport />} />
-          <Route path="/application-settings" element={<ModuleView title="Application Settings" />} />
+          
+          {/* Vendor Management Routes */}
+          <Route path="/vendor" element={<Vendor />} />
+          <Route path="/vendor/entry" element={<Vendor />} />
+          <Route path="/vendor/view" element={<Vendor />} />
+          <Route path="/pages/vendor" element={<Vendor />} />
+          <Route path="/pages/vendor/entry" element={<Vendor />} />
+          <Route path="/pages/vendor/view" element={<Vendor />} />
+          <Route path="/application-settings/vendor" element={<Vendor />} />
+          <Route path="/application-settings/vendor/entry" element={<Vendor />} />
+          <Route path="/application-settings/vendor/view" element={<Vendor />} />
+
+          {/* Access Control & Application Settings */}
+          <Route path="/access-control" element={<AccessControl />} />
+          <Route path="/application-settings/access-control" element={<AccessControl />} />
+          <Route path="/application-settings" element={<Vendor />} />
+
           <Route path="*" element={<Navigate to="/analytics" replace />} />
         </Route>
       </Route>

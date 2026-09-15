@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FileText, Calendar, ChevronDown, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import { directStockService } from '../services/directStockService';
+import { vendorService } from '../services/vendorService';
 import { getTodayDateStr } from '../utils/dateUtils';
 
 const BRAND_MODELS = {
@@ -53,7 +54,7 @@ export const DirectStock = () => {
   const [customModel, setCustomModel] = useState('');
   const [isCustomModel, setIsCustomModel] = useState(false);
 
-  const [vendorsList] = useState([
+  const [vendorsList, setVendorsList] = useState([
     'ROYAL ENFIELD DISTRIBUTORS',
     'HARDEEP HONDA',
     'HERO MOTOCORP DEALERS',
@@ -61,6 +62,21 @@ export const DirectStock = () => {
     'MADRAS MOTORS',
     'RNS MOTORS'
   ]);
+
+  useEffect(() => {
+    const fetchDynamicVendors = async () => {
+      try {
+        const res = await vendorService.getVendors();
+        if (res && res.success && Array.isArray(res.data)) {
+          const names = res.data.map(v => (v.display_name || '').toUpperCase()).filter(Boolean);
+          setVendorsList(prev => Array.from(new Set([...prev, ...names])));
+        }
+      } catch (e) {
+        console.warn('Failed to load vendors dynamically in DirectStock', e);
+      }
+    };
+    fetchDynamicVendors();
+  }, []);
 
   const getStoredStocks = () => {
     try {

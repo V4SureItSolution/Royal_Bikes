@@ -16,6 +16,7 @@ import {
   FileSpreadsheet,
   LogOut,
   Settings,
+  Shield,
   X
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -33,6 +34,10 @@ export const Sidebar = () => {
   const [isBookingOpen, setIsBookingOpen] = useState(true);
   const [isDeliveryOpen, setIsDeliveryOpen] = useState(true);
   const [isMisOpen, setIsMisOpen] = useState(true);
+  const [isAppSettingsOpen, setIsAppSettingsOpen] = useState(true);
+  const [isVendorOpen, setIsVendorOpen] = useState(
+    location.pathname.includes('/vendor') || location.pathname.includes('/pages/vendor')
+  );
 
   // Quick Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,7 +55,9 @@ export const Sidebar = () => {
     { id: 'delivery-view', title: 'Delivery-Challan View', path: '/delivery-challan/view', icon: Truck, category: 'Sales' },
     { id: 'current-stock-report', title: 'Current Stock Report', path: '/current-stock-report', icon: Tag, category: 'Reports' },
     { id: 'day-book', title: 'Day Book (MIS)', path: '/day-book', icon: FileSpreadsheet, category: 'Reports' },
-    { id: 'app-settings', title: 'Application Settings', path: '/application-settings', icon: Settings, category: 'Settings' },
+    { id: 'vendor-entry', title: 'Vendor Entry', path: '/vendor/entry', icon: Settings, category: 'Settings' },
+    { id: 'vendor-view', title: 'Vendor View', path: '/vendor/view', icon: Settings, category: 'Settings' },
+    { id: 'access-control', title: 'Access Control', path: '/access-control', icon: Shield, category: 'Settings' },
   ];
 
   const filteredItems = navItems.filter(item => 
@@ -360,16 +367,78 @@ export const Sidebar = () => {
             {/* SETTINGS Section */}
             <div className="sidebar-section-title">SETTINGS</div>
 
-            <NavLink
-              to="/application-settings"
-              className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
-            >
-              <div className="sidebar-nav-item-left">
-                <Settings size={16} />
-                <span>Application Settings</span>
+            <div className="sidebar-accordion">
+              <div
+                className={`sidebar-nav-item ${
+                  location.pathname.includes('/vendor') || 
+                  location.pathname.includes('/pages/vendor') || 
+                  location.pathname.includes('/access-control') ||
+                  location.pathname === '/application-settings' 
+                    ? 'active' 
+                    : ''
+                }`}
+                onClick={() => setIsAppSettingsOpen(prev => !prev)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className="sidebar-nav-item-left">
+                  <Settings size={16} />
+                  <span>Application Settings</span>
+                </div>
+                {isAppSettingsOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
               </div>
-              <ChevronRight size={14} />
-            </NavLink>
+
+              {isAppSettingsOpen && (
+                <div style={{ paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.25rem', marginBottom: '0.5rem' }}>
+                  {/* Nested Vendor Submenu Accordion */}
+                  <div className="sidebar-accordion">
+                    <div
+                      className={`sidebar-nav-item ${
+                        location.pathname.includes('/vendor') || location.pathname.includes('/pages/vendor')
+                          ? 'active'
+                          : ''
+                      }`}
+                      onClick={() => setIsVendorOpen(prev => !prev)}
+                      style={{ cursor: 'pointer', padding: '0.5rem 0.75rem', borderRadius: '4px' }}
+                    >
+                      <div className="sidebar-nav-item-left">
+                        <span>Vendor</span>
+                      </div>
+                      {isVendorOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                    </div>
+
+                    {isVendorOpen && (
+                      <div style={{ paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.25rem', marginBottom: '0.35rem' }}>
+                        <NavLink
+                          to="/vendor/entry"
+                          className={({ isActive }) => `sidebar-subnav-item ${isActive || location.pathname === '/pages/vendor' ? 'active' : ''}`}
+                          style={{ fontSize: '0.84rem', color: '#94a3b8', padding: '0.35rem 0.75rem', borderRadius: '4px', textDecoration: 'none' }}
+                        >
+                          Entry
+                        </NavLink>
+                        <NavLink
+                          to="/vendor/view"
+                          className={({ isActive }) => `sidebar-subnav-item ${isActive ? 'active' : ''}`}
+                          style={{ fontSize: '0.84rem', color: '#94a3b8', padding: '0.35rem 0.75rem', borderRadius: '4px', textDecoration: 'none' }}
+                        >
+                          View
+                        </NavLink>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Access Control Submenu Item */}
+                  <NavLink
+                    to="/access-control"
+                    className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
+                    style={{ padding: '0.5rem 0.75rem', borderRadius: '4px', textDecoration: 'none' }}
+                  >
+                    <div className="sidebar-nav-item-left">
+                      <span>Access Control</span>
+                    </div>
+                  </NavLink>
+                </div>
+              )}
+            </div>
           </>
         )}
       </div>

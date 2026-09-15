@@ -47,6 +47,11 @@ export const API_ENDPOINTS = {
     CURRENT_STOCK: `${API_BASE_URL}/reports/current-stock`,
     DAY_BOOK: `${API_BASE_URL}/reports/day-book`,
     ANALYTICS: `${API_BASE_URL}/reports/analytics`
+  },
+  VENDORS: {
+    BASE: `${API_BASE_URL}/vendors`,
+    BY_ID: (id) => `${API_BASE_URL}/vendors/${id}`,
+    UPLOAD: `${API_BASE_URL}/vendors/upload`
   }
 };
 
