@@ -52,6 +52,7 @@ export const AppRoutes = () => {
         <Route path="/current-stock-report" element={<CurrentStockReport />} />
         <Route path="/mis-report" element={<DayBookReport />} />
         <Route path="/day-book" element={<DayBookReport />} />
+        <Route path="/application-settings" element={<ModuleView title="Application Settings" />} />
         <Route path="*" element={<Navigate to="/delivery-challan/entry" replace />} />
       </Route>
     </Routes>
