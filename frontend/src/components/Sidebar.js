@@ -101,31 +101,13 @@ export const Sidebar = () => {
     <aside className="karoda-sidebar">
       {/* Brand Header */}
       <div className="sidebar-header">
-        <NavLink to="/" className="brand-logo-wrap" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-          <RoyalBikesMark width={34} color="#ffffff" />
-          <span style={{ 
-            fontFamily: "'Outfit', 'Inter', -apple-system, sans-serif", 
-            fontWeight: 800, 
-            letterSpacing: '1.2px',
-            fontSize: '1.2rem',
-            color: '#ffffff',
-            textTransform: 'uppercase',
-            whiteSpace: 'nowrap'
-          }}>
-            ROYAL BIKES
-          </span>
+        <NavLink to="/" className="brand-logo-wrap">
+          <img
+            src="/royal-bikes-logo.png.jpeg"
+            alt="Royal Bikes"
+            style={{ height: '48px', width: 'auto', objectFit: 'contain', backgroundColor: '#ffffff', borderRadius: '6px', padding: '4px 8px' }}
+          />
         </NavLink>
-        <div style={{
-          width: '16px',
-          height: '16px',
-          borderRadius: '50%',
-          border: '2px solid rgba(255,255,255,0.3)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ffffff' }}></div>
-        </div>
       </div>
 
       {/* Quick Search */}

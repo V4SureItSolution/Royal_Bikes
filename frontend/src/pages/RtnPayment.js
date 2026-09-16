@@ -14,6 +14,7 @@ import { rtnPaymentService } from '../services/rtnPaymentService';
 import { customerService } from '../services/customerService';
 import { CustomerSearchSelect } from '../components/CustomerSearchSelect';
 import { getTodayDateStr } from '../utils/dateUtils';
+import { PrintHeader } from '../components/PrintHeader';
 
 // Helper to convert number to words
 const numberToWords = (num) => {
@@ -504,192 +505,86 @@ export const RtnPayment = () => {
         </div>
       </div>
 
-      {/* Printable RTN Payment Voucher Modal */}
+      {/* Right Side Panel Print Preview */}
       {selectedRtnForPrint && (
-        <div className="modal-overlay" onClick={() => setSelectedRtnForPrint(null)}>
-          <div className="printable-receipt-card" style={{ maxWidth: '780px' }} onClick={(e) => e.stopPropagation()}>
-            <div className="receipt-modal-header receipt-modal-actions-bar">
-              <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#0f172a' }}>
-                RTN Payment Voucher Preview - #{selectedRtnForPrint.voucher_no}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <button
-                  type="button"
-                  className="btn-save-pill"
-                  onClick={() => window.print()}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.45rem 1.25rem', fontSize: '0.88rem' }}
-                >
-                  <Printer size={16} />
-                  <span>Print</span>
+        <>
+          <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)', zIndex: 998 }} onClick={() => setSelectedRtnForPrint(null)} />
+          <div style={{ position: 'fixed', top: 0, right: 0, height: '100vh', width: '520px', backgroundColor: '#ffffff', zIndex: 999, boxShadow: '-4px 0 24px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column' }}>
+
+            {/* Panel Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.25rem', borderBottom: '1px solid #e2e8f0' }}>
+              <div style={{ fontWeight: 700, fontSize: '1rem', color: '#0f172a' }}>RTN Payment Preview - #{selectedRtnForPrint.voucher_no}</div>
+              <div style={{ display: 'flex', gap: '0.65rem' }}>
+                <button type="button" className="btn-save-pill" onClick={() => window.print()} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
+                  <Printer size={15} /> Print
                 </button>
-                <button
-                  type="button"
-                  className="btn-icon-circle"
-                  onClick={() => setSelectedRtnForPrint(null)}
-                >
-                  <X size={20} />
-                </button>
+                <button type="button" className="btn-icon-circle" onClick={() => setSelectedRtnForPrint(null)}><X size={18} /></button>
               </div>
             </div>
 
-            <div style={{ padding: '1.5rem', background: '#ffffff', overflowY: 'auto' }}>
-              {/* Printable Voucher Box */}
+            {/* Panel Body */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem' }}>
               <div className="printable-receipt-container">
-                {/* Header Grid */}
-                <div className="receipt-header-grid">
-                  <div className="receipt-logo-wrap">
-                    <svg width="60" height="34" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="5.5" cy="17.5" r="3.5"/>
-                      <circle cx="18.5" cy="17.5" r="3.5"/>
-                      <path d="M15 6h2.57a2 2 0 0 1 1.96 1.62l1.04 5.22"/>
-                      <path d="M9 17.5h6"/>
-                      <path d="M5.5 17.5 9 10l3 3 3.5-7"/>
-                    </svg>
-                    <div style={{
-                      fontWeight: '900',
-                      fontSize: '1rem',
-                      letterSpacing: '0.08em',
-                      fontFamily: "'Arial Black', sans-serif",
-                      borderTop: '2px solid #000000',
-                      borderBottom: '2px solid #000000',
-                      padding: '1px 0',
-                      marginTop: '2px',
-                      width: '120px'
-                    }}>
-                      ROYAL
-                      <div style={{ fontSize: '0.8rem', letterSpacing: '0.22em' }}>BIKES</div>
-                    </div>
-                  </div>
+                <PrintHeader />
 
-                  <div className="receipt-company-info">
-                    <h2 style={{ fontSize: '1.45rem', fontWeight: 'bold', margin: '0 0 0.15rem 0', textTransform: 'uppercase', fontFamily: "'Times New Roman', serif" }}>
-                      ROYAL BIKES
-                    </h2>
-                    <div style={{ fontSize: '0.78rem', color: '#000000', lineHeight: 1.35, fontFamily: "'Times New Roman', serif" }}>
-                      104/1, ERUKKANCHERY HIGH ROAD,SHARMA NAGAR, VYASARPADI<br />
-                      CHENNAI-600039 (ANNAI DIGITAL OPPOSITE)<br />
-                      E-mail : royalbikes2020@gmail.com
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', marginTop: '1.25rem' }}>
+                  {[['LAND LINE', '04443537237'], ['RTO', '8925270575'], ['SALES', '6369308779'], ['CUSTOMER CARE', '9677037270']].map(([label, val]) => (
+                    <div key={label} style={{ border: '1px solid #777', borderRadius: '18px', padding: '0.25rem 0.5rem', textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.68rem', color: '#444', fontWeight: 'bold' }}>{label}</div>
+                      <div style={{ fontSize: '0.88rem', fontWeight: 'bold' }}>{val}</div>
                     </div>
-                  </div>
+                  ))}
                 </div>
 
-                {/* Contact Pills Row */}
-                <div className="contact-pills-row">
-                  <div className="contact-pill-item">
-                    <div className="contact-pill-label">LAND LINE</div>
-                    <div className="contact-pill-value">04443537237</div>
-                  </div>
-                  <div className="contact-pill-item">
-                    <div className="contact-pill-label">RTO</div>
-                    <div className="contact-pill-value">8925270575</div>
-                  </div>
-                  <div className="contact-pill-item">
-                    <div className="contact-pill-label">SALES</div>
-                    <div className="contact-pill-value">6369308779</div>
-                  </div>
-                  <div className="contact-pill-item">
-                    <div className="contact-pill-label">CUSTOMER CARE</div>
-                    <div className="contact-pill-value">9677037270</div>
-                  </div>
-                </div>
+                <div style={{ borderTop: '1px solid #777', margin: '0.85rem 0 1.25rem' }} />
 
-                {/* Divider Line */}
-                <div style={{ borderTop: '1px solid #777777', margin: '0.85rem 0 1.25rem' }}></div>
-
-                {/* Voucher Content Body */}
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
-                      VOUCHER NO: {selectedRtnForPrint.voucher_no}
-                    </div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
-                      Date : {selectedRtnForPrint.rtn_date ? selectedRtnForPrint.rtn_date.replace(/-/g, '/') : '12/08/2026'}
-                    </div>
+                <div style={{ fontFamily: "'Times New Roman', serif" }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+                    <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>VOUCHER NO: {selectedRtnForPrint.voucher_no}</div>
+                    <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Date : {(selectedRtnForPrint.rtn_date || '12-08-2026').replace(/-/g, '/')}</div>
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: '1.35rem', fontSize: '1.1rem' }}>
                     <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>Customer Name :</span>
-                    <span style={{ 
-                      borderBottom: '1px dotted #000000', 
-                      flex: 1, 
-                      marginLeft: '0.5rem', 
-                      fontWeight: 'bold', 
-                      fontSize: '1.2rem',
-                      paddingLeft: '0.5rem' 
-                    }}>
-                      {selectedRtnForPrint.customer_name}
-                    </span>
+                    <span style={{ borderBottom: '1px dotted #000', flex: 1, marginLeft: '0.5rem', fontWeight: 'bold', fontSize: '1.2rem', paddingLeft: '0.5rem' }}>{selectedRtnForPrint.customer_name}</span>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '2rem', marginBottom: '1.35rem', fontSize: '1.1rem' }}>
+                  <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.35rem', fontSize: '1.1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'baseline', flex: 1.2 }}>
                       <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>Amount :</span>
-                      <span style={{ 
-                        borderBottom: '1px dotted #000000', 
-                        flex: 1, 
-                        marginLeft: '0.5rem', 
-                        fontWeight: 'bold', 
-                        fontSize: '1.2rem',
-                        paddingLeft: '0.5rem' 
-                      }}>
-                        {selectedRtnForPrint.amount}/-
-                      </span>
+                      <span style={{ borderBottom: '1px dotted #000', flex: 1, marginLeft: '0.5rem', fontWeight: 'bold', fontSize: '1.2rem', paddingLeft: '0.5rem' }}>{selectedRtnForPrint.amount}/-</span>
                     </div>
-
                     <div style={{ display: 'flex', alignItems: 'baseline', flex: 1 }}>
                       <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>A/c No :</span>
-                      <span style={{ 
-                        borderBottom: '1px dotted #000000', 
-                        flex: 1, 
-                        marginLeft: '0.5rem', 
-                        fontWeight: 'bold', 
-                        fontSize: '1.2rem',
-                        paddingLeft: '0.5rem' 
-                      }}>
-                        {selectedRtnForPrint.account_code || '3104'}
-                      </span>
+                      <span style={{ borderBottom: '1px dotted #000', flex: 1, marginLeft: '0.5rem', fontWeight: 'bold', fontSize: '1.2rem', paddingLeft: '0.5rem' }}>{selectedRtnForPrint.account_code || '3104'}</span>
                     </div>
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
                     <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>Sum of Rupees :</span>
-                    <span style={{ 
-                      borderBottom: '1px dotted #000000', 
-                      flex: 1, 
-                      marginLeft: '0.5rem', 
-                      fontWeight: 'bold', 
-                      fontSize: '1.15rem',
-                      paddingLeft: '0.5rem',
-                      textTransform: 'lowercase'
-                    }}>
-                      {numberToWords(selectedRtnForPrint.amount)}
-                    </span>
+                    <span style={{ borderBottom: '1px dotted #000', flex: 1, marginLeft: '0.5rem', fontWeight: 'bold', fontSize: '1.15rem', paddingLeft: '0.5rem', textTransform: 'lowercase' }}>{numberToWords(selectedRtnForPrint.amount)}</span>
                   </div>
 
                   <div style={{ marginBottom: '2.5rem' }}>
-                    <div className="payment-mode-pill-box">
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '1rem', border: '1px solid #666', borderRadius: '20px', padding: '0.35rem 1.4rem', fontSize: '1.05rem' }}>
                       <span>Mode of payment</span>
-                      <strong style={{ fontSize: '1.05rem' }}>{selectedRtnForPrint.payment_type || 'CASH'}</strong>
+                      <strong>{selectedRtnForPrint.payment_type || 'CASH'}</strong>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '3rem', padding: '0 0.5rem' }}>
-                    <div style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>
-                      Authorised Signature
-                    </div>
-                    <div style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>
-                      Customer Signature
-                    </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '3rem', padding: '0 0.5rem' }}>
+                    <div style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>Authorised Signature</div>
+                    <div style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>Customer Signature</div>
                   </div>
 
-                  <div style={{ textAlign: 'center', fontSize: '0.75rem', color: '#222222', marginTop: '1.5rem' }}>
+                  <div style={{ textAlign: 'center', fontSize: '0.75rem', color: '#222', marginTop: '1.5rem' }}>
                     Any cancellation is subjects to 10% deduct on at the discretion of the company
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
