@@ -64,9 +64,16 @@ export const Analytics = () => {
       {/* Royal Bikes Info Banner */}
       <div className="royal-banner-card">
         <div className="royal-banner-content">
-          <h2 className="royal-banner-title">
-            {data.company_info?.name || 'ROYAL BIKES'}
-          </h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '0.75rem' }}>
+            <img
+              src="/royal-bikes-logo.png.jpeg"
+              alt="Royal Bikes"
+              style={{ height: '80px', width: 'auto', objectFit: 'contain', backgroundColor: '#ffffff', borderRadius: '8px', padding: '6px' }}
+            />
+            <h2 className="royal-banner-title" style={{ margin: 0 }}>
+              {data.company_info?.name || 'ROYAL BIKES'}
+            </h2>
+          </div>
           <p className="royal-banner-address">
             {data.company_info?.address || '104/1, ERUKKANCHERY HIGH ROADSHARMA NAGAR, VYASARPADI,CHENNAI - 600039'}
           </p>

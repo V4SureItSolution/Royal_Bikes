@@ -21,6 +21,7 @@ import {
   UserCheck
 } from 'lucide-react';
 import { deliveryChallanService } from '../services/deliveryChallanService';
+import { PrintHeader } from '../components/PrintHeader';
 
 export const DeliveryChallan = () => {
   const location = useLocation();
@@ -911,102 +912,33 @@ export const DeliveryChallan = () => {
         </div>
       )}
 
-      {/* PRINTABLE DELIVERY CHALLAN INVOICE MODAL */}
+      {/* Right Side Panel Print Preview */}
       {selectedDcForPrint && (
-        <div className="modal-overlay" onClick={() => setSelectedDcForPrint(null)}>
-          <div className="printable-receipt-card" style={{ maxWidth: '780px' }} onClick={(e) => e.stopPropagation()}>
-            <div className="receipt-modal-header receipt-modal-actions-bar">
-              <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#0f172a' }}>
-                Delivery Challan Preview - #{selectedDcForPrint.dc_number}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <button
-                  type="button"
-                  className="btn-save-pill"
-                  onClick={() => window.print()}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.45rem 1.25rem', fontSize: '0.88rem' }}
-                >
-                  <Printer size={16} />
-                  <span>Print</span>
+        <>
+          <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)', zIndex: 998 }} onClick={() => setSelectedDcForPrint(null)} />
+          <div style={{ position: 'fixed', top: 0, right: 0, height: '100vh', width: '560px', backgroundColor: '#ffffff', zIndex: 999, boxShadow: '-4px 0 24px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.25rem', borderBottom: '1px solid #e2e8f0' }}>
+              <div style={{ fontWeight: 700, fontSize: '1rem', color: '#0f172a' }}>Delivery Challan - #{selectedDcForPrint.dc_number}</div>
+              <div style={{ display: 'flex', gap: '0.65rem' }}>
+                <button type="button" className="btn-save-pill" onClick={() => window.print()} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
+                  <Printer size={15} /> Print
                 </button>
-                <button
-                  type="button"
-                  className="btn-icon-circle"
-                  onClick={() => setSelectedDcForPrint(null)}
-                >
-                  <X size={20} />
-                </button>
+                <button type="button" className="btn-icon-circle" onClick={() => setSelectedDcForPrint(null)}><X size={18} /></button>
               </div>
             </div>
-
-            <div style={{ padding: '1.5rem', background: '#ffffff', overflowY: 'auto' }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem' }}>
               <div className="printable-receipt-container">
-                {/* Header Grid */}
-                <div className="receipt-header-grid">
-                  <div className="receipt-logo-wrap">
-                    <svg width="60" height="34" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="5.5" cy="17.5" r="3.5"/>
-                      <circle cx="18.5" cy="17.5" r="3.5"/>
-                      <path d="M15 6h2.57a2 2 0 0 1 1.96 1.62l1.04 5.22"/>
-                      <path d="M9 17.5h6"/>
-                      <path d="M5.5 17.5 9 10l3 3 3.5-7"/>
-                    </svg>
-                    <div style={{
-                      fontWeight: '900',
-                      fontSize: '1rem',
-                      letterSpacing: '0.08em',
-                      fontFamily: "'Arial Black', sans-serif",
-                      borderTop: '2px solid #000000',
-                      borderBottom: '2px solid #000000',
-                      padding: '1px 0',
-                      marginTop: '2px',
-                      width: '120px'
-                    }}>
-                      ROYAL
-                      <div style={{ fontSize: '0.8rem', letterSpacing: '0.22em' }}>BIKES</div>
+                <PrintHeader />
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', marginTop: '1.25rem' }}>
+                  {[['LAND LINE', '04443537237'], ['RTO', '8925270575'], ['SALES', '6369308779'], ['CUSTOMER CARE', '9677037270']].map(([label, val]) => (
+                    <div key={label} style={{ border: '1px solid #777', borderRadius: '18px', padding: '0.25rem 0.5rem', textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.68rem', color: '#444', fontWeight: 'bold' }}>{label}</div>
+                      <div style={{ fontSize: '0.88rem', fontWeight: 'bold' }}>{val}</div>
                     </div>
-                  </div>
-
-                  <div className="receipt-company-info">
-                    <h2 style={{ fontSize: '1.45rem', fontWeight: 'bold', margin: '0 0 0.15rem 0', textTransform: 'uppercase', fontFamily: "'Times New Roman', serif" }}>
-                      ROYAL BIKES
-                    </h2>
-                    <div style={{ fontSize: '0.78rem', color: '#000000', lineHeight: 1.35, fontFamily: "'Times New Roman', serif" }}>
-                      104/1, ERUKKANCHERY HIGH ROAD,SHARMA NAGAR, VYASARPADI<br />
-                      CHENNAI-600039 (ANNAI DIGITAL OPPOSITE)<br />
-                      E-mail : royalbikes2020@gmail.com
-                    </div>
-                  </div>
+                  ))}
                 </div>
-
-                {/* Contact Pills Row */}
-                <div className="contact-pills-row">
-                  <div className="contact-pill-item">
-                    <div className="contact-pill-label">LAND LINE</div>
-                    <div className="contact-pill-value">04443537237</div>
-                  </div>
-                  <div className="contact-pill-item">
-                    <div className="contact-pill-label">RTO</div>
-                    <div className="contact-pill-value">8925270575</div>
-                  </div>
-                  <div className="contact-pill-item">
-                    <div className="contact-pill-label">SALES</div>
-                    <div className="contact-pill-value">6369308779</div>
-                  </div>
-                  <div className="contact-pill-item">
-                    <div className="contact-pill-label">CUSTOMER CARE</div>
-                    <div className="contact-pill-value">9677037270</div>
-                  </div>
-                </div>
-
-                <div style={{ borderTop: '1.5px solid #000000', margin: '0.85rem 0 1.25rem' }}></div>
-
-                {/* Document Title */}
-                <div style={{ textAlign: 'center', fontSize: '1.25rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1.25rem' }}>
-                  DELIVERY CHALLAN
-                </div>
-
-                {/* Info Grid */}
+                <div style={{ borderTop: '1.5px solid #000', margin: '0.85rem 0 1.25rem' }} />
+                <div style={{ textAlign: 'center', fontSize: '1.25rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1.25rem' }}>DELIVERY CHALLAN</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.95rem', marginBottom: '1.25rem', border: '1px solid #000', padding: '0.85rem', borderRadius: '4px' }}>
                   <div>
                     <strong>DC Number:</strong> {selectedDcForPrint.dc_number}<br />
@@ -1019,15 +951,13 @@ export const DeliveryChallan = () => {
                     <strong>Address:</strong> {selectedDcForPrint.customer_address || 'CHENNAI'}
                   </div>
                 </div>
-
-                {/* Product Table */}
                 <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
                   <thead>
                     <tr style={{ borderTop: '1px solid #000', borderBottom: '1px solid #000', backgroundColor: '#f8fafc' }}>
-                      <th style={{ padding: '0.5rem', textAlign: 'left' }}>Product Particulars</th>
+                      <th style={{ padding: '0.5rem', textAlign: 'left' }}>Product</th>
                       <th style={{ padding: '0.5rem', textAlign: 'center' }}>Qty</th>
-                      <th style={{ padding: '0.5rem', textAlign: 'left' }}>Engine Number</th>
-                      <th style={{ padding: '0.5rem', textAlign: 'left' }}>Chassis Number</th>
+                      <th style={{ padding: '0.5rem', textAlign: 'left' }}>Engine No</th>
+                      <th style={{ padding: '0.5rem', textAlign: 'left' }}>Chassis No</th>
                       <th style={{ padding: '0.5rem', textAlign: 'left' }}>Color</th>
                     </tr>
                   </thead>
@@ -1035,26 +965,20 @@ export const DeliveryChallan = () => {
                     <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
                       <td style={{ padding: '0.65rem 0.5rem', fontWeight: 600 }}>{selectedDcForPrint.product_name}</td>
                       <td style={{ padding: '0.65rem 0.5rem', textAlign: 'center' }}>{selectedDcForPrint.quantity}</td>
-                      <td style={{ padding: '0.65rem 0.5rem' }}>{selectedDcForPrint.engine_number || 'ENG-350-7712'}</td>
-                      <td style={{ padding: '0.65rem 0.5rem' }}>{selectedDcForPrint.chassis_number || 'CHS-RE-9941'}</td>
-                      <td style={{ padding: '0.65rem 0.5rem' }}>{selectedDcForPrint.color || 'Stealth Black'}</td>
+                      <td style={{ padding: '0.65rem 0.5rem' }}>{selectedDcForPrint.engine_number}</td>
+                      <td style={{ padding: '0.65rem 0.5rem' }}>{selectedDcForPrint.chassis_number}</td>
+                      <td style={{ padding: '0.65rem 0.5rem' }}>{selectedDcForPrint.color}</td>
                     </tr>
                   </tbody>
                 </table>
-
-                {/* Signatures */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '3.5rem', padding: '0 0.5rem' }}>
-                  <div style={{ fontWeight: 'bold' }}>
-                    Authorised Signature
-                  </div>
-                  <div style={{ fontWeight: 'bold' }}>
-                    Receiver's Signature
-                  </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '3.5rem', padding: '0 0.5rem' }}>
+                  <div style={{ fontWeight: 'bold' }}>Authorised Signature</div>
+                  <div style={{ fontWeight: 'bold' }}>Receiver's Signature</div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

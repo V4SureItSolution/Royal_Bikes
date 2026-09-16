@@ -26,24 +26,12 @@ export const Sidebar = () => {
       {/* Brand Header */}
       <div className="sidebar-header">
         <NavLink to="/" className="brand-logo-wrap">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#06b6d4"/>
-            <path d="M2 17L12 22L22 17" stroke="#6366f1" strokeWidth="2" strokeLinecap="round"/>
-            <path d="M2 12L12 17L22 12" stroke="#ec4899" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-          <span>KarodaBook</span>
+          <img
+            src="/royal-bikes-logo.png.jpeg"
+            alt="Royal Bikes"
+            style={{ height: '48px', width: 'auto', objectFit: 'contain', backgroundColor: '#ffffff', borderRadius: '6px', padding: '4px 8px' }}
+          />
         </NavLink>
-        <div style={{
-          width: '16px',
-          height: '16px',
-          borderRadius: '50%',
-          border: '2px solid rgba(255,255,255,0.3)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ffffff' }}></div>
-        </div>
       </div>
 
       {/* Quick Search */}
