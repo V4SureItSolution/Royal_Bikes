@@ -13,6 +13,8 @@ import {
 import { voucherService } from '../services/voucherService';
 import { customerService } from '../services/customerService';
 import { CustomerSearchSelect } from '../components/CustomerSearchSelect';
+import { getTodayDateStr } from '../utils/dateUtils';
+import { PrintHeader } from '../components/PrintHeader';
 
 // Helper to convert number to words
 const numberToWords = (num) => {

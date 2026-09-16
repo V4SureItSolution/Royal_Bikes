@@ -19,7 +19,6 @@ import {
   X
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { RoyalBikesMark } from './RoyalBikesLogo';
 
 export const Sidebar = () => {
   const { user, logout } = useAuth();
