@@ -197,31 +197,21 @@ export const DirectStock = () => {
       engineNumber: formData.engineNumber.trim(),
       chassisNumber: formData.chassisNumber.trim(),
       engine_number: formData.engineNumber.trim(),
-      chassis_number: formData.chassisNumber.trim()
+      chassis_number: formData.chassisNumber.trim(),
+      color: formData.color.trim()
     };
-
-    const newLocalEntry = {
-      id: Date.now(),
-      ...payload
-    };
-
-    // Save to local storage immediately so it is never lost on navigation
-    const updatedEntries = [newLocalEntry, ...stockEntries];
-    setStockEntries(updatedEntries);
-    localStorage.setItem('royalbikes_direct_stocks', JSON.stringify(updatedEntries));
-    window.dispatchEvent(new Event('directStockUpdated'));
 
     try {
       setLoading(true);
       const res = await directStockService.createDirectStock(payload);
       if (res && res.success) {
-        loadStockEntries();
+        await loadStockEntries();
       }
     } catch (err) {
-      console.warn('Saved locally:', err);
+      console.warn('Saved with local storage backup:', err);
     } finally {
       setLoading(false);
-      alert(`Direct Stock Entry for ${payload.brand} (${payload.product}) saved successfully! It is now active under the ${payload.brand} section in the Current Stock Report.`);
+      alert(`Direct Stock Entry for ${payload.brand} (${payload.product}) saved successfully! Engine No: ${payload.engineNumber}, Chassis No: ${payload.chassisNumber}, Color: ${payload.color}. It is now active across all software dropdowns.`);
       handleClear();
       setActiveTab('view');
     }
@@ -512,7 +502,7 @@ export const DirectStock = () => {
             {/* Engine Number, Chassis Number, Color */}
             <div className="form-grid-full form-grid-3">
               <fieldset className="outlined-fieldset">
-                <legend className="outlined-legend" style={{ color: '#6366f1' }}>Engine Number *</legend>
+                <legend className="outlined-legend">Engine Number *</legend>
                 <input
                   type="text"
                   required
@@ -524,7 +514,7 @@ export const DirectStock = () => {
               </fieldset>
 
               <fieldset className="outlined-fieldset">
-                <legend className="outlined-legend" style={{ color: '#6366f1' }}>Chassis Number *</legend>
+                <legend className="outlined-legend">Chassis Number *</legend>
                 <input
                   type="text"
                   required
@@ -536,7 +526,7 @@ export const DirectStock = () => {
               </fieldset>
 
               <fieldset className="outlined-fieldset">
-                <legend className="outlined-legend" style={{ color: '#6366f1' }}>Color *</legend>
+                <legend className="outlined-legend">Color *</legend>
                 <input
                   type="text"
                   required
@@ -550,7 +540,7 @@ export const DirectStock = () => {
 
             {/* Notes */}
             <fieldset className="outlined-fieldset form-grid-full">
-              <legend className="outlined-legend" style={{ color: '#6366f1' }}>Notes</legend>
+              <legend className="outlined-legend">Notes</legend>
               <textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}

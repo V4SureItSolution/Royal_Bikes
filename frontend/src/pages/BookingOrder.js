@@ -22,6 +22,7 @@ import {
 import { bookingOrderService } from '../services/bookingOrderService';
 import { customerService } from '../services/customerService';
 import { getTodayDateStr, getFutureDateStr, getCurrentYear } from '../utils/dateUtils';
+import { StockNumberSelect } from '../components/StockNumberSelect';
 
 const INDIAN_STATES = [
   'TAMIL NADU',
@@ -158,6 +159,16 @@ export const BookingOrder = () => {
       street_area: cust.address ? cust.address.split(',')[0] : prev.street_area
     }));
     setShowCustSuggest(false);
+  };
+
+  const handleSelectStock = (stock) => {
+    if (!stock) return;
+    setFormData((prev) => ({
+      ...prev,
+      model_name: stock.product || stock.model || prev.model_name,
+      color: stock.color || prev.color,
+      notes: prev.notes ? `${prev.notes} | Stock: Eng ${stock.engine_number || stock.engineNumber}, Chs ${stock.chassis_number || stock.chassisNumber}` : `Stock Allocation: Eng ${stock.engine_number || stock.engineNumber}, Chs ${stock.chassis_number || stock.chassisNumber}`
+    }));
   };
 
   // Handle Amount auto calculations
@@ -571,7 +582,7 @@ export const BookingOrder = () => {
                 <h3 className="booking-section-title">Vehicle Details & Financials</h3>
               </div>
 
-              <div className="form-grid-3" style={{ marginBottom: '1.25rem' }}>
+              <div className="form-grid-3" style={{ marginBottom: '1.25rem', alignItems: 'start' }}>
                 {/* Model Name */}
                 <fieldset className="outlined-fieldset">
                   <legend className="outlined-legend">Motorcycle Model*</legend>
@@ -586,17 +597,17 @@ export const BookingOrder = () => {
                   </select>
                 </fieldset>
 
-                {/* Color */}
-                <fieldset className="outlined-fieldset">
-                  <legend className="outlined-legend">Color / Shade</legend>
-                  <input
-                    type="text"
-                    className="outlined-input"
-                    placeholder="e.g. Stealth Black / Halcyon Green"
+                {/* Color with Stock Selector */}
+                <div>
+                  <StockNumberSelect
+                    fieldType="color"
+                    label="Color / Shade"
                     value={formData.color}
-                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    placeholder="Select or type Color"
+                    onChange={(val) => setFormData(prev => ({ ...prev, color: val }))}
+                    onSelectStock={handleSelectStock}
                   />
-                </fieldset>
+                </div>
 
                 {/* Variant */}
                 <fieldset className="outlined-fieldset">

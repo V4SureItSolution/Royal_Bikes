@@ -141,7 +141,7 @@ export const Receipt = () => {
 
   const handleDeleteReceipt = async (id) => {
     if (window.confirm('Are you sure you want to delete this receipt entry?')) {
-      try { await receiptService.deleteReceipt(id); } catch (err) {}
+      try { await receiptService.deleteReceipt(id); } catch (err) { }
       setReceipts((prev) => prev.filter((r) => r.id !== id));
     }
   };

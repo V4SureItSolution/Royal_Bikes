@@ -26,6 +26,8 @@ class DirectStock(db.Model):
             'quantity': self.quantity,
             'engineNumber': self.engine_number,
             'chassisNumber': self.chassis_number,
+            'engine_number': self.engine_number,
+            'chassis_number': self.chassis_number,
             'color': self.color,
             'notes': self.notes or '',
             'created_at': self.created_at.isoformat() if self.created_at else None

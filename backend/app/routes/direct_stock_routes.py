@@ -27,10 +27,10 @@ def get_direct_stock():
 def create_direct_stock():
     data = request.get_json() or {}
 
-    product = data.get('product', '').strip()
+    product = (data.get('product') or data.get('model') or '').strip()
     vendor = data.get('vendor', '').strip()
-    engine_number = data.get('engineNumber', '').strip()
-    chassis_number = data.get('chassisNumber', '').strip()
+    engine_number = (data.get('engineNumber') or data.get('engine_number') or '').strip()
+    chassis_number = (data.get('chassisNumber') or data.get('chassis_number') or '').strip()
     color = data.get('color', '').strip()
 
     if not product or not vendor or not engine_number or not chassis_number or not color:

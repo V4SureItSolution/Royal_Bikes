@@ -89,7 +89,7 @@ export const CurrentStockReport = () => {
           return;
         }
       }
-    } catch (e) {}
+    } catch (e) { }
   }, [asOnDate, searchQuery]);
 
   useEffect(() => {
@@ -193,91 +193,91 @@ export const CurrentStockReport = () => {
           </div>
         ) : (
           Object.entries(stockData).map(([brand, items]) => {
-          const filteredItems = items.filter((item) => 
-            !searchQuery || 
-            item.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.color.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.engine_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.chassis_number.toLowerCase().includes(searchQuery.toLowerCase())
-          );
+            const filteredItems = items.filter((item) =>
+              !searchQuery ||
+              item.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              item.color.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              item.engine_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              item.chassis_number.toLowerCase().includes(searchQuery.toLowerCase())
+            );
 
-          if (filteredItems.length === 0) return null;
+            if (filteredItems.length === 0) return null;
 
-          // Total stock = sum of all entries under this brand
-          const totalStock = filteredItems.length;
+            // Total stock = sum of all entries under this brand
+            const totalStock = filteredItems.length;
 
-          return (
-            <div key={brand}>
-              {/* Brand Title + Total Stock Badge */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.65rem' }}>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#6366f1', margin: 0, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  {brand}
-                </h3>
-                <span style={{
-                  backgroundColor: '#e0e7ff',
-                  color: '#3730a3',
-                  fontSize: '0.78rem',
-                  fontWeight: 700,
-                  padding: '0.2rem 0.65rem',
-                  borderRadius: '999px',
-                  border: '1px solid #c7d2fe'
-                }}>
-                  Total Stock: {totalStock}
-                </span>
-              </div>
+            return (
+              <div key={brand}>
+                {/* Brand Title + Total Stock Badge */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.65rem' }}>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#6366f1', margin: 0, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    {brand}
+                  </h3>
+                  <span style={{
+                    backgroundColor: '#e0e7ff',
+                    color: '#3730a3',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    padding: '0.2rem 0.65rem',
+                    borderRadius: '999px',
+                    border: '1px solid #c7d2fe'
+                  }}>
+                    Total Stock: {totalStock}
+                  </span>
+                </div>
 
-              {/* Table */}
-              <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: '#ffffff' }}>
-                  <thead>
-                    <tr style={{ backgroundColor: '#000099', color: '#ffffff' }}>
-                      <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 700, fontSize: '0.9rem', width: '5%' }}>#</th>
-                      <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 700, fontSize: '0.9rem', width: '28%' }}>Model</th>
-                      <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 700, fontSize: '0.9rem', width: '15%' }}>Color</th>
-                      <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 700, fontSize: '0.9rem', width: '25%' }}>Engine Number</th>
-                      <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 700, fontSize: '0.9rem', width: '27%' }}>Chassis Number</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredItems.map((row, idx) => (
-                      <tr
-                        key={idx}
-                        style={{ borderBottom: idx === filteredItems.length - 1 ? 'none' : '1px solid #f1f5f9', backgroundColor: idx % 2 === 0 ? '#ffffff' : '#fafafa' }}
-                      >
-                        <td style={{ padding: '0.75rem 1rem', color: '#94a3b8', fontSize: '0.82rem', fontWeight: 600 }}>
-                          {idx + 1}
+                {/* Table */}
+                <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: '#ffffff' }}>
+                    <thead>
+                      <tr style={{ backgroundColor: '#000099', color: '#ffffff' }}>
+                        <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 700, fontSize: '0.9rem', width: '5%' }}>#</th>
+                        <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 700, fontSize: '0.9rem', width: '28%' }}>Model</th>
+                        <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 700, fontSize: '0.9rem', width: '15%' }}>Color</th>
+                        <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 700, fontSize: '0.9rem', width: '25%' }}>Engine Number</th>
+                        <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 700, fontSize: '0.9rem', width: '27%' }}>Chassis Number</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredItems.map((row, idx) => (
+                        <tr
+                          key={idx}
+                          style={{ borderBottom: idx === filteredItems.length - 1 ? 'none' : '1px solid #f1f5f9', backgroundColor: idx % 2 === 0 ? '#ffffff' : '#fafafa' }}
+                        >
+                          <td style={{ padding: '0.75rem 1rem', color: '#94a3b8', fontSize: '0.82rem', fontWeight: 600 }}>
+                            {idx + 1}
+                          </td>
+                          <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: '#1e293b', fontSize: '0.88rem' }}>
+                            {row.model}
+                          </td>
+                          <td style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#475569', fontSize: '0.88rem' }}>
+                            {row.color}
+                          </td>
+                          <td style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#334155', fontSize: '0.88rem', fontFamily: 'monospace' }}>
+                            {row.engine_number}
+                          </td>
+                          <td style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#334155', fontSize: '0.88rem', fontFamily: 'monospace' }}>
+                            {row.chassis_number}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    {/* Brand Total Footer Row */}
+                    <tfoot>
+                      <tr style={{ backgroundColor: '#f8fafc', borderTop: '2px solid #e2e8f0' }}>
+                        <td colSpan={4} style={{ padding: '0.6rem 1rem', fontWeight: 700, color: '#475569', fontSize: '0.85rem' }}>
+                          Total {brand} Stock
                         </td>
-                        <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: '#1e293b', fontSize: '0.88rem' }}>
-                          {row.model}
-                        </td>
-                        <td style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#475569', fontSize: '0.88rem' }}>
-                          {row.color}
-                        </td>
-                        <td style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#334155', fontSize: '0.88rem', fontFamily: 'monospace' }}>
-                          {row.engine_number}
-                        </td>
-                        <td style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#334155', fontSize: '0.88rem', fontFamily: 'monospace' }}>
-                          {row.chassis_number}
+                        <td style={{ padding: '0.6rem 1rem', fontWeight: 800, color: '#3730a3', fontSize: '0.9rem' }}>
+                          {totalStock} unit{totalStock !== 1 ? 's' : ''}
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                  {/* Brand Total Footer Row */}
-                  <tfoot>
-                    <tr style={{ backgroundColor: '#f8fafc', borderTop: '2px solid #e2e8f0' }}>
-                      <td colSpan={4} style={{ padding: '0.6rem 1rem', fontWeight: 700, color: '#475569', fontSize: '0.85rem' }}>
-                        Total {brand} Stock
-                      </td>
-                      <td style={{ padding: '0.6rem 1rem', fontWeight: 800, color: '#3730a3', fontSize: '0.9rem' }}>
-                        {totalStock} unit{totalStock !== 1 ? 's' : ''}
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
+                    </tfoot>
+                  </table>
+                </div>
               </div>
-            </div>
-          );
-        }))}
+            );
+          }))}
       </div>
 
       {/* Page Bottom Footer Banner */}

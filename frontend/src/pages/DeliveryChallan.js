@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { 
-  Truck, 
-  Home, 
-  Calendar, 
-  Search, 
-  Printer, 
-  X, 
-  ChevronLeft, 
+import {
+  Truck,
+  Home,
+  Calendar,
+  Search,
+  Printer,
+  X,
+  ChevronLeft,
   ChevronRight,
   ShoppingBag,
   CheckCircle2,
@@ -23,6 +23,7 @@ import { deliveryChallanService } from '../services/deliveryChallanService';
 import { customerService } from '../services/customerService';
 import { getTodayDateStr, getFutureDateStr, getCurrentYear } from '../utils/dateUtils';
 import { PrintHeader } from '../components/PrintHeader';
+import { StockNumberSelect } from '../components/StockNumberSelect';
 
 export const DeliveryChallan = () => {
   const location = useLocation();
@@ -149,6 +150,17 @@ export const DeliveryChallan = () => {
     setIsCustomerDropdownOpen(false);
   };
 
+  const handleSelectStock = (stock) => {
+    if (!stock) return;
+    setFormData((prev) => ({
+      ...prev,
+      engine_number: stock.engine_number || stock.engineNumber || prev.engine_number,
+      chassis_number: stock.chassis_number || stock.chassisNumber || prev.chassis_number,
+      product_name: stock.product || stock.model || prev.product_name,
+      color: stock.color || prev.color
+    }));
+  };
+
   const handleCreateNewCustomer = async (e) => {
     e.preventDefault();
     if (!newCustomerForm.firstName || !newCustomerForm.phone) {
@@ -251,7 +263,7 @@ export const DeliveryChallan = () => {
 
   // Filtered & Searched data
   const filteredChallans = challans.filter((item) => {
-    const matchesSearch = 
+    const matchesSearch =
       item.customer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.dc_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (item.product_name && item.product_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
@@ -292,8 +304,8 @@ export const DeliveryChallan = () => {
 
         {/* Top Right Action Button */}
         {activeTab === 'entry' && (
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={handleSubmitEntry}
             className="btn-save-pill"
             disabled={loading}
@@ -342,7 +354,7 @@ export const DeliveryChallan = () => {
       {activeTab === 'entry' && (
         <form onSubmit={handleSubmitEntry} style={{ maxWidth: '900px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            
+
             {/* Row 1: Dates & Customer Details Lookup */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.2fr', gap: '1.25rem' }}>
               <div>
@@ -404,7 +416,7 @@ export const DeliveryChallan = () => {
                     overflowY: 'auto'
                   }}>
                     {/* Add New Customer Option */}
-                    <div 
+                    <div
                       onClick={() => {
                         setIsCustomerDropdownOpen(false);
                         setIsAddCustomerModalOpen(true);
@@ -493,7 +505,7 @@ export const DeliveryChallan = () => {
               />
             </fieldset>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1.5fr 1fr', gap: '1.25rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1.5fr 1.2fr', gap: '1.25rem', alignItems: 'start' }}>
               <fieldset className="outlined-fieldset">
                 <legend className="outlined-legend">Quantity</legend>
                 <input
@@ -505,38 +517,41 @@ export const DeliveryChallan = () => {
                 />
               </fieldset>
 
-              <fieldset className="outlined-fieldset">
-                <legend className="outlined-legend">Engine Number *</legend>
-                <input
-                  type="text"
-                  name="engine_number"
+              <div>
+                <StockNumberSelect
+                  fieldType="engine_number"
+                  label="Engine Number"
+                  required
                   value={formData.engine_number}
-                  onChange={handleInputChange}
-                  className="outlined-input"
+                  placeholder="Select/type Engine No"
+                  onChange={(val) => setFormData(prev => ({ ...prev, engine_number: val }))}
+                  onSelectStock={handleSelectStock}
                 />
-              </fieldset>
+              </div>
 
-              <fieldset className="outlined-fieldset">
-                <legend className="outlined-legend">Chassis Number *</legend>
-                <input
-                  type="text"
-                  name="chassis_number"
+              <div>
+                <StockNumberSelect
+                  fieldType="chassis_number"
+                  label="Chassis Number"
+                  required
                   value={formData.chassis_number}
-                  onChange={handleInputChange}
-                  className="outlined-input"
+                  placeholder="Select/type Chassis No"
+                  onChange={(val) => setFormData(prev => ({ ...prev, chassis_number: val }))}
+                  onSelectStock={handleSelectStock}
                 />
-              </fieldset>
+              </div>
 
-              <fieldset className="outlined-fieldset">
-                <legend className="outlined-legend">Color *</legend>
-                <input
-                  type="text"
-                  name="color"
+              <div>
+                <StockNumberSelect
+                  fieldType="color"
+                  label="Color"
+                  required
                   value={formData.color}
-                  onChange={handleInputChange}
-                  className="outlined-input"
+                  placeholder="Select/type Color"
+                  onChange={(val) => setFormData(prev => ({ ...prev, color: val }))}
+                  onSelectStock={handleSelectStock}
                 />
-              </fieldset>
+              </div>
             </div>
 
             {/* Row 4: Delivery Terms & Notes */}
@@ -763,7 +778,7 @@ export const DeliveryChallan = () => {
 
             <form onSubmit={handleCreateNewCustomer} style={{ padding: '1.25rem 1.5rem 1.5rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
-                
+
                 {/* First Name & Last Name */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <fieldset className="outlined-fieldset" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>

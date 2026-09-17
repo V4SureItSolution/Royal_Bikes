@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  CreditCard as CreditCardIcon, 
-  Calendar, 
-  Search, 
-  Printer, 
-  X, 
-  ChevronLeft, 
+import {
+  CreditCard as CreditCardIcon,
+  Calendar,
+  Search,
+  Printer,
+  X,
+  ChevronLeft,
   ChevronRight,
   ShoppingBag,
   CheckCircle2
@@ -20,7 +20,7 @@ import { PrintHeader } from '../components/PrintHeader';
 const numberToWords = (num) => {
   const n = parseInt(num, 10);
   if (isNaN(n) || n <= 0) return 'zero rupees only';
-  
+
   const units = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
   const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
 
@@ -174,7 +174,7 @@ export const RtnPayment = () => {
 
   // Filtered & Searched data
   const filteredRtnPayments = rtnPayments.filter((item) => {
-    const matchesSearch = 
+    const matchesSearch =
       item.customer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.voucher_no.includes(searchQuery) ||
       (item.account_code && item.account_code.includes(searchQuery)) ||
@@ -236,7 +236,7 @@ export const RtnPayment = () => {
       {activeTab === 'entry' && (
         <form onSubmit={handleSubmitEntry} style={{ maxWidth: '750px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            
+
             {/* Account Code */}
             <fieldset className="outlined-fieldset">
               <legend className="outlined-legend">Account Code</legend>
